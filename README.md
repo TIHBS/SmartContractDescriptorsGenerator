@@ -1,1 +1,1 @@
-# SmartContractDescriptorsGenerator
+# Smart Contract Descriptors Generator
