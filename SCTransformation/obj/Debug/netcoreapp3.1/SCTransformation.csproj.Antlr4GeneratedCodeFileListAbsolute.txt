@@ -1,0 +1,6 @@
+/Users/umutartuvan/Projects/SCTransformation/SCTransformation/obj/Debug/netcoreapp3.1/SolidityLexer.cs
+/Users/umutartuvan/Projects/SCTransformation/SCTransformation/obj/Debug/netcoreapp3.1/SolidityParser.cs
+/Users/umutartuvan/Projects/SCTransformation/SCTransformation/obj/Debug/netcoreapp3.1/SolidityListener.cs
+/Users/umutartuvan/Projects/SCTransformation/SCTransformation/obj/Debug/netcoreapp3.1/SolidityBaseListener.cs
+/Users/umutartuvan/Projects/SCTransformation/SCTransformation/obj/Debug/netcoreapp3.1/SolidityVisitor.cs
+/Users/umutartuvan/Projects/SCTransformation/SCTransformation/obj/Debug/netcoreapp3.1/SolidityBaseVisitor.cs
