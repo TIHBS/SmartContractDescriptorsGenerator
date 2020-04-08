@@ -4,7 +4,7 @@ using SCTransformation.Models;
 
 namespace SCTransformation.Functions
 {
-    public class SolidityParser
+    public class CustomSolidityParser
     {
         public static Solidity ParseFromString(string contents)
         {

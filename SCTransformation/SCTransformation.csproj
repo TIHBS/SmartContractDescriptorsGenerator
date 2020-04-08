@@ -6,7 +6,7 @@
         <StartupObject>SCTransformation.Functions.StaticFunctions</StartupObject>
     </PropertyGroup>
     <ItemGroup>
-        <Folder Include="Enumerations" />
+        <Folder Include="Enumerations\" />
         <Folder Include="Helpers\" />
         <Folder Include="Enumerations\" />
         <Folder Include="Models\" />
@@ -15,5 +15,11 @@
     <ItemGroup>
         <PackageReference Include="Antlr4" Version="4.6.6" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Resources\in.cs" />
+      <Resource Include="Resources\in.cs" />
+      <None Remove="Resources\in.sol" />
+      <Resource Include="Resources\in.sol" />
     </ItemGroup>
 </Project>

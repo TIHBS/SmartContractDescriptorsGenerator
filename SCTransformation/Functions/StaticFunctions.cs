@@ -4,8 +4,12 @@ using System.IO;
 using SCTransformation.Helpers;
 using SCTransformation.Models;
 using System.Linq;
+using System.Runtime.Versioning;
 using Antlr4.Runtime;
 using Newtonsoft.Json;
+using SCTransformation.Grammars;
+using SCTransformation.Visitors;
+
 namespace SCTransformation.Functions
 {
     public static class StaticFunctions 
@@ -17,8 +21,13 @@ namespace SCTransformation.Functions
             {
                 contents = File.ReadAllText(filePath);
                 var stream = new AntlrInputStream(contents);
-                
-                
+                SolidityLexer lexer= new SolidityLexer(stream);
+                CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
+                SolidityParser parser = new SolidityParser(commonTokenStream);
+                var tree = parser.sourceUnit();
+                SolidityVisitor visitor = new SolidityVisitor();
+                visitor.VisitSourceUnit(tree);
+                return visitor.Solidity as T;
             }
             catch (Exception e)
             {
@@ -38,7 +47,7 @@ namespace SCTransformation.Functions
                 case nameof(LLL):
                     return LLLFromFile(contents) as T;
                 case nameof(Solidity):
-                    return SolidityParser.ParseFromString(contents) as T;
+                    return CustomSolidityParser.ParseFromString(contents) as T;
                 case nameof(Vyper):
                     return VyperParser.ParseFromString(contents) as T;
                 default:

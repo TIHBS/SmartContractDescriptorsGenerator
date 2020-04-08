@@ -21,7 +21,6 @@ namespace SCTransformation.Models
             public List<SolidityEnum> Enums { get; set; }
             public List<Struct> Structs { get; set; }
             public bool IsAbstract { get; set; }
-            public Scope Scope { get; set; }
         }
 
         public class Interface
@@ -33,7 +32,6 @@ namespace SCTransformation.Models
             public List<Modifier> Modifiers { get; set; }
             public List<SolidityEnum> Enums { get; set; }
             public List<Struct> Structs { get; set; }
-            public Scope Scope { get; set; }
         }
 
         public class StateVariable
