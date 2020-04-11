@@ -43,6 +43,7 @@ namespace SCTransformation.Models
 
         public class Modifier
         {
+            public string Name { get; set; }
             public Scope Scope { get; set; }
         }
 
