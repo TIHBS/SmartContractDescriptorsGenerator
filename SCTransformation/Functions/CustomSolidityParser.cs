@@ -13,8 +13,7 @@ namespace SCTransformation.Functions
             var solidity = new Solidity
             {
                 Contracts = new List<Solidity.Contract>(),
-                Imports = new List<string>(),
-                Interfaces = new List<Solidity.Interface>()
+                Imports = new List<string>()
             };
             for (var i = 0; i < words.Count; i++)
             {
@@ -35,13 +34,6 @@ namespace SCTransformation.Functions
                     var solidityContract = GetContract(x);
                     solidity.Contracts.Add(solidityContract);
                 }
-
-                if (words[i].Equals("interface"))
-                {
-                    var x = TextBetween(words.GetRange(i + 1, words.Count - (i+1)).ToArray());
-                    var solidityInterface = GetInterface(x);
-                    solidity.Interfaces.Add(solidityInterface);
-                }
             }
 
             return solidity;
@@ -57,11 +49,6 @@ namespace SCTransformation.Functions
                 }
             }
             return new Solidity.Contract();
-        }
-        
-        private static Solidity.Interface GetInterface(IEnumerable<string> list)
-        {
-            return new Solidity.Interface();
         }
 
         private static IEnumerable<string> TextBetween(IEnumerable<string> list)

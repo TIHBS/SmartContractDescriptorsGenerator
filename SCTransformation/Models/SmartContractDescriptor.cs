@@ -6,19 +6,19 @@ namespace SCTransformation.Models
 {
     public class SmartContractDescriptor
     {
-        public string SCDLVersion { get; set; }
+        public string ScdlVersion { get; set; }
         public string Name { get; set; }
         public string Version { get; set; }
-        public Uri LatestURL { get; set; }
+        public Uri LatestUrl { get; set; }
         public string Description { get; set; }
         public string Author { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime UpdatedOn { get; set; }
         public LifeCycle LifeCycle { get; set; }
-        public string SCLAdress { get; set; } //TODO: Type SCL Address
+        public string SclAddress { get; set; } //TODO: Type SCL Address
         public BlockChainType BlockChainType { get; set; }
         public string BlockChainVersion { get; set; }
-        public string InternalAdress { get; set; }
+        public string InternalAddress { get; set; }
         public Uri MetaData { get; set; }
         public string Hash { get; set; }
         public bool IsStateful { get; set; }

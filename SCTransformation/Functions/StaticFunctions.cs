@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.Versioning;
 using Antlr4.Runtime;
 using Newtonsoft.Json;
-using SCTransformation.Grammars;
+using SCTransformation.Grammars.Solidity;
 using SCTransformation.Visitors;
 
 namespace SCTransformation.Functions

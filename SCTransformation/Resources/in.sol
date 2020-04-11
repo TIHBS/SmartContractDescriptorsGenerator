@@ -1,4 +1,7 @@
 pragma solidity ^0.4.22;
+import "filename";
+import * as symbolName from "filename";
+import "filename" as symbolName;
 
 contract owned {
     function owned() public { owner = msg.sender; }

@@ -9,7 +9,6 @@ namespace SCTransformation.Models
         public string Pragma { get; set; }
         public List<string> Imports { get; set; }
         public List<Contract> Contracts { get; set; }
-        public List<Interface> Interfaces { get; set; }
 
         public class Contract
         {
@@ -20,18 +19,7 @@ namespace SCTransformation.Models
             public List<Modifier> Modifiers { get; set; }
             public List<SolidityEnum> Enums { get; set; }
             public List<Struct> Structs { get; set; }
-            public bool IsAbstract { get; set; }
-        }
-
-        public class Interface
-        {
-            public string Name { get; set; }
-            public List<StateVariable> StateVariables { get; set; }
-            public List<Function> Functions { get; set; }
-            public List<Event> Events { get; set; }
-            public List<Modifier> Modifiers { get; set; }
-            public List<SolidityEnum> Enums { get; set; }
-            public List<Struct> Structs { get; set; }
+            public ContractType ContractType { get; set; }
         }
 
         public class StateVariable
@@ -76,6 +64,13 @@ namespace SCTransformation.Models
             Internal,
             External,
             Private
+        }
+        
+        public enum ContractType
+        {
+            Interface,
+            Library,
+            Contract
         }
     }
 }
