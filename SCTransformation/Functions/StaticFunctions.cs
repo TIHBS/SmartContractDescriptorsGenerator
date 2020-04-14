@@ -28,8 +28,6 @@ namespace SCTransformation.Functions
                         return ParseCPP(contents) as T;
                     case nameof(Java):
                         return ParseJava(contents) as T;
-                    case nameof(LLL):
-                        return ParseLLL(contents) as T;
                     case nameof(Solidity):
                         return ParseSolidity(contents) as T;
                     case nameof(Vyper):
@@ -77,11 +75,6 @@ namespace SCTransformation.Functions
         public static CPP ParseCPP(string contents)
         {
             return new CPP { };
-        }
-
-        public static LLL ParseLLL(string contents)
-        {
-            return new LLL { };
         }
 
         public static CSharp ParseCSharp(string contents)

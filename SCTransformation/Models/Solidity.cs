@@ -26,7 +26,7 @@ namespace SCTransformation.Models
         {
             public string Type { get; set; }
             public string Name { get; set; }
-            public bool IsConstant { get; set; }
+            public List<Keyword> Keywords { get; set; }
         }
 
         public class Function
@@ -66,7 +66,11 @@ namespace SCTransformation.Models
             External,
             Private
         }
-        
+        public enum Keyword
+        {
+            Constant,
+
+        }
         public enum ContractType
         {
             Interface,

@@ -32,6 +32,9 @@ namespace SCTransformation.Visitors
 
             foreach (var contract in contracts)
             {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine(contract.identifier().GetText());
+                Console.ForegroundColor = ConsoleColor.White;
                 var solidityContract = new Solidity.Contract
                 {
                     Name = contract.identifier().GetText(),
@@ -84,7 +87,10 @@ namespace SCTransformation.Visitors
 
                     else if (contractPart.functionDefinition() != null && contractPart.functionDefinition().GetType().Equals(typeof(SolidityParser.FunctionDefinitionContext)))
                     {
-                        solidityContract.Functions.Add(new Solidity.Function() { Name = contractPart.functionDefinition().identifier().GetText(), Scope = Solidity.Scope.Private });
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine(contractPart.functionDefinition()?.identifier()?.GetText()??null);
+                        Console.ForegroundColor = ConsoleColor.White;
+                        solidityContract.Functions.Add(new Solidity.Function() { Name = contractPart.functionDefinition()?.identifier()?.GetText() ?? null, Scope = Solidity.Scope.Private });
                     }
                     else if (contractPart.stateVariableDeclaration() != null && contractPart.stateVariableDeclaration().GetType().Equals(typeof(SolidityParser.StateVariableDeclarationContext)))
                     {
