@@ -12,22 +12,29 @@ using SCTransformation.Visitors;
 
 namespace SCTransformation.Functions
 {
-    public static class StaticFunctions 
+    public static class StaticFunctions
     {
         public static T ReadFileTo<T>(string filePath = Constants.SolidityInPath) where T : class
         {
-            string contents = null;
             try
             {
-                contents = File.ReadAllText(filePath);
-                var stream = new AntlrInputStream(contents);
-                SolidityLexer lexer= new SolidityLexer(stream);
-                CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
-                SolidityParser parser = new SolidityParser(commonTokenStream);
-                var tree = parser.sourceUnit();
-                SolidityVisitor visitor = new SolidityVisitor();
-                visitor.VisitSourceUnit(tree);
-                return visitor.Solidity as T;
+                string contents = File.ReadAllText(filePath);
+
+                switch (typeof(T).Name)
+                {
+                    case nameof(CSharp):
+                        return ParseCSharp(contents) as T;
+                    case nameof(CPP):
+                        return ParseCPP(contents) as T;
+                    case nameof(Java):
+                        return ParseJava(contents) as T;
+                    case nameof(LLL):
+                        return ParseLLL(contents) as T;
+                    case nameof(Solidity):
+                        return ParseSolidity(contents) as T;
+                    case nameof(Vyper):
+                        return ParseVyper(contents) as T;
+                }
             }
             catch (Exception e)
             {
@@ -35,24 +42,8 @@ namespace SCTransformation.Functions
                 Console.WriteLine(e);
                 Console.ForegroundColor = ConsoleColor.White;
             }
-            
-            switch (typeof(T).Name)
-            {
-                case nameof(CSharp):
-                    return CSharpParser.ParseFromString(contents) as T;
-                case nameof(CPP):
-                    return CPPFromFile(contents) as T;
-                case nameof(Java):
-                    return JavaParser.ParseFromString(contents) as T;
-                case nameof(LLL):
-                    return LLLFromFile(contents) as T;
-                case nameof(Solidity):
-                    return CustomSolidityParser.ParseFromString(contents) as T;
-                case nameof(Vyper):
-                    return VyperParser.ParseFromString(contents) as T;
-                default:
-                    return null;
-            }
+
+            return null;
         }
 
         public static bool WriteFileIn(string filePath, object obj)
@@ -71,36 +62,46 @@ namespace SCTransformation.Functions
 
             return false;
         }
-        
-        public static CPP CPPFromFile(string contents)
+
+        public static Solidity ParseSolidity(string contents)
+        {
+            var stream = new AntlrInputStream(contents);
+            SolidityLexer lexer = new SolidityLexer(stream);
+            CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
+            SolidityParser parser = new SolidityParser(commonTokenStream);
+            var tree = parser.sourceUnit();
+            SolidityVisitor visitor = new SolidityVisitor();
+            visitor.VisitSourceUnit(tree);
+            return visitor.Solidity;
+        }
+        public static CPP ParseCPP(string contents)
         {
             return new CPP { };
         }
 
-        public static LLL LLLFromFile(string contents)
+        public static LLL ParseLLL(string contents)
         {
             return new LLL { };
+        }
+
+        public static CSharp ParseCSharp(string contents)
+        {
+            return new CSharp { };
+        }
+
+        public static Java ParseJava(string contents)
+        {
+            return new Java { };
+        }
+
+        public static Vyper ParseVyper(string contents)
+        {
+            return new Vyper { };
         }
 
         static void Main(string[] args)
         {
             Solidity solidity = ReadFileTo<Solidity>();
-        }
-
-        public static List<string> ExtractWords(string str)
-        {
-            var singleSpaceStr = new string(str.SkipWhile(p => p.Equals(' ')).ToArray())
-                .Replace(Environment.NewLine, " ").Replace("\r", " ");
-            var words = new List<string>();
-
-            foreach (var word in singleSpaceStr.Split(' '))
-            {
-                if (!string.IsNullOrEmpty(word))
-                {
-                    words.Add(word);
-                }
-            }
-            return words;
         }
     }
 }

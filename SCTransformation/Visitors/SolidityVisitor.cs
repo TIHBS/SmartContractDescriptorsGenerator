@@ -57,34 +57,38 @@ namespace SCTransformation.Visitors
 
                 foreach (var contractPart in contract.contractPart())
                 {
-                    var contractPartText = contractPart.GetText();
-                    if (contractPartText.StartsWith("enum"))
+                    if (contractPart.enumDefinition() != null && contractPart.enumDefinition().GetType().Equals(typeof(SolidityParser.EnumDefinitionContext)))
                     {
                         solidityContract.Enums.Add(new Solidity.SolidityEnum { Name = contractPart.enumDefinition().identifier().GetText(), Enums = new List<string>() });
                     }
 
-                    else if (contractPartText.StartsWith("struct"))
+                    else if (contractPart.structDefinition() != null && contractPart.structDefinition().GetType().Equals(typeof(SolidityParser.StructDefinitionContext)))
                     {
                         solidityContract.Structs.Add(new Solidity.Struct() { Name = contractPart.structDefinition().identifier().GetText(), Variables = new Dictionary<string, string>() });
                     }
 
-                    else if (contractPartText.StartsWith("modifier"))
+                    else if (contractPart.modifierDefinition() != null && contractPart.modifierDefinition().GetType().Equals(typeof(SolidityParser.ModifierDefinitionContext)))
                     {
-                        solidityContract.Modifiers.Add(new Solidity.Modifier() { Name = contractPart.modifierDefinition().identifier().GetText(), Scope = Solidity.Scope.Private});
+                        solidityContract.Modifiers.Add(new Solidity.Modifier() { Name = contractPart.modifierDefinition().identifier().GetText(), Scope = Solidity.Scope.Private });
 
                     }
 
-                    else if (contractPartText.StartsWith("constructor"))
+                    else if (contractPart.constructorDefinition() != null && contractPart.constructorDefinition().GetType().Equals(typeof(SolidityParser.ConstructorDefinitionContext)))
                     {
                     }
 
-                    else if (contractPartText.StartsWith("event"))
+                    else if (contractPart.eventDefinition() != null && contractPart.eventDefinition().GetType().Equals(typeof(SolidityParser.EventDefinitionContext)))
                     {
+
                     }
 
-                    else if (contractPartText.StartsWith("function"))
+                    else if (contractPart.functionDefinition() != null && contractPart.functionDefinition().GetType().Equals(typeof(SolidityParser.FunctionDefinitionContext)))
                     {
-                        solidityContract.Functions.Add(new Solidity.Function() { Name = contractPart.functionDefinition().identifier().GetText(), Scope = Solidity.Scope.Private});
+                        solidityContract.Functions.Add(new Solidity.Function() { Name = contractPart.functionDefinition().identifier().GetText(), Scope = Solidity.Scope.Private });
+                    }
+                    else if (contractPart.stateVariableDeclaration() != null && contractPart.stateVariableDeclaration().GetType().Equals(typeof(SolidityParser.StateVariableDeclarationContext)))
+                    {
+                        solidityContract.StateVariables.Add(new Solidity.StateVariable { Name = contractPart.stateVariableDeclaration().identifier().GetText(), Type = contractPart.stateVariableDeclaration().typeName().GetText() });
                     }
 
                 }

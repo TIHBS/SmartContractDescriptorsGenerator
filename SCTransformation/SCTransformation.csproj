@@ -30,7 +30,7 @@
             <Visitor>True</Visitor>
             <!--<Abstract></Abstract>
             <ForceAtn></ForceAtn>-->
-            <CopyToOutputDirectory>/Grammars/Solidity/</CopyToOutputDirectory>
+            <CopyToOutputDirectory></CopyToOutputDirectory>
         </Antlr4>
     </ItemGroup>
 </Project>
