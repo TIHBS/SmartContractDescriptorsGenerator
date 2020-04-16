@@ -94,7 +94,14 @@ namespace SCTransformation.Functions
 
         static void Main(string[] args)
         {
-            Solidity solidity = ReadFileTo<Solidity>();
+            var solidity = ReadFileTo<Solidity>();
+            var scdList = new List<SmartContractDescriptor>();
+            //TODO:
+            foreach (var contract in solidity.Contracts)
+            {   var functions = new List<SmartContractDescriptor.Function>();
+                contract.Functions.ForEach(x => functions.Add(new SmartContractDescriptor.Function { Name = x.Name }));
+                scdList.Add(new SmartContractDescriptor { ScdlVersion = solidity.Pragma, Functions = functions });
+            }
         }
     }
 }

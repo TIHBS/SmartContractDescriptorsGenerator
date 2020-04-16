@@ -85,7 +85,7 @@ structDefinition
     '{' ( variableDeclaration ';' (variableDeclaration ';')* )? '}' ;
 
 constructorDefinition
-  : 'constructor' parameterList modifierList block ;
+  : 'constructor' parameterList scopeDefinition? modifierList block ;
 
 modifierDefinition
   : 'modifier' identifier parameterList? block ;
@@ -94,14 +94,16 @@ modifierInvocation
   : identifier ( '(' expressionList? ')' )? ;
 
 functionDefinition
-  : natSpec? 'function' identifier? parameterList modifierList returnParameters? ( ';' | block ) ;
-
+  : natSpec? 'function' identifier? parameterList scopeDefinition? modifierList returnParameters? ( ';' | block ) ;
+  
+scopeDefinition
+  : (ExternalKeyword | PublicKeyword | InternalKeyword | PrivateKeyword);
+        
 returnParameters
   : 'returns' parameterList ;
 
 modifierList
-  : ( modifierInvocation | stateMutability | ExternalKeyword
-    | PublicKeyword | InternalKeyword | PrivateKeyword )* ;
+  : ( modifierInvocation | stateMutability )* ;
 
 eventDefinition
   : natSpec? 'event' identifier eventParameterList AnonymousKeyword? ';' ;

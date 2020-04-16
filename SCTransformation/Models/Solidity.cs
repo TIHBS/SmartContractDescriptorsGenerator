@@ -44,9 +44,15 @@ namespace SCTransformation.Models
         public class Modifier
         {
             public string Name { get; set; }
-            public Scope Scope { get; set; }
+            public List<Parameter> Parameters { get; set; }
         }
 
+        public class Parameter
+        {
+            public string Type { get; set; }
+            public string Name { get; set; }
+            public StorageLocation StorageLocation { get; set; }
+        }
         public class SolidityEnum
         {
             public string Name { get; set; }
@@ -56,7 +62,23 @@ namespace SCTransformation.Models
         public class Struct
         {
             public string Name { get; set; }
-            public IDictionary<string, string> Variables { get; set; }
+            public List<Variable> Variables { get; set; }
+        }
+
+        public class Variable
+        {
+            public string Type { get; set; }
+            public string Name { get; set; }
+            public StorageLocation StorageLocation { get; set; }
+
+        }
+
+        public enum StorageLocation
+        {
+            None,
+            Memory,
+            Storage,
+            CallData
         }
 
         public enum Scope
