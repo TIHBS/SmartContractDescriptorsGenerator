@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-        <OutputType>Exe</OutputType>
+        <OutputType>Library</OutputType>
         <StartupObject>SCTransformation.Functions.StaticFunctions</StartupObject>
     </PropertyGroup>
     <ItemGroup>
@@ -35,7 +35,7 @@
             <Visitor>True</Visitor>
             <!--<Abstract></Abstract>
             <ForceAtn></ForceAtn>-->
-            <CopyToOutputDirectory>Grammars\Solidity\</CopyToOutputDirectory>
+            <CopyToOutputDirectory></CopyToOutputDirectory>
         </Antlr4>
         <Antlr4 Include="Grammars\Go\GoLexer.g4">
             <Generator>MSBuild:Compile</Generator>
@@ -46,7 +46,7 @@
             <Visitor>True</Visitor>
             <!--<Abstract></Abstract>
             <ForceAtn></ForceAtn>-->
-            <CopyToOutputDirectory>Grammars\Go\</CopyToOutputDirectory>
+            <CopyToOutputDirectory></CopyToOutputDirectory>
         </Antlr4>
         <Antlr4 Include="Grammars\Go\GoParser.g4">
             <Generator>MSBuild:Compile</Generator>
@@ -57,7 +57,7 @@
             <Visitor>True</Visitor>
             <!--<Abstract></Abstract>
             <ForceAtn></ForceAtn>-->
-            <CopyToOutputDirectory>Grammars\Go\</CopyToOutputDirectory>
+            <CopyToOutputDirectory></CopyToOutputDirectory>
         </Antlr4>
     </ItemGroup>
 </Project>
