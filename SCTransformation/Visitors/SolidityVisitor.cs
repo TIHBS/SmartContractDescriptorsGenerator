@@ -14,7 +14,7 @@ namespace SCTransformation.Visitors
         {
             Solidity = new Solidity {Contracts = new List<Solidity.Contract>(), Imports = new List<string>()};
         }
-
+        
         public override object VisitSourceUnit(SolidityParser.SourceUnitContext context)
         {
             var contracts = context.contractDefinition();

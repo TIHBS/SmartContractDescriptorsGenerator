@@ -35,7 +35,7 @@
             <Visitor>True</Visitor>
             <!--<Abstract></Abstract>
             <ForceAtn></ForceAtn>-->
-            <CopyToOutputDirectory></CopyToOutputDirectory>
+            <CopyToOutputDirectory>Grammars\Solidity\</CopyToOutputDirectory>
         </Antlr4>
         <Antlr4 Include="Grammars\Go\GoLexer.g4">
             <Generator>MSBuild:Compile</Generator>
@@ -46,7 +46,7 @@
             <Visitor>True</Visitor>
             <!--<Abstract></Abstract>
             <ForceAtn></ForceAtn>-->
-            <CopyToOutputDirectory></CopyToOutputDirectory>
+            <CopyToOutputDirectory>Grammars\Go\</CopyToOutputDirectory>
         </Antlr4>
         <Antlr4 Include="Grammars\Go\GoParser.g4">
             <Generator>MSBuild:Compile</Generator>
@@ -57,7 +57,7 @@
             <Visitor>True</Visitor>
             <!--<Abstract></Abstract>
             <ForceAtn></ForceAtn>-->
-            <CopyToOutputDirectory></CopyToOutputDirectory>
+            <CopyToOutputDirectory>Grammars\Go\</CopyToOutputDirectory>
         </Antlr4>
     </ItemGroup>
 </Project>

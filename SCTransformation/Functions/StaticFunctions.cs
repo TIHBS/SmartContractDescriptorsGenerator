@@ -14,12 +14,10 @@ namespace SCTransformation.Functions
 {
     public static class StaticFunctions
     {
-        public static T ReadFileTo<T>(string filePath = Constants.SolidityInPath) where T : class
+        public static T ReadFileTo<T>(string contents) where T : class
         {
             try
             {
-                string contents = File.ReadAllText(filePath);
-
                 switch (typeof(T).Name)
                 {
                     case nameof(CSharp):
@@ -94,14 +92,17 @@ namespace SCTransformation.Functions
 
         static void Main(string[] args)
         {
-            var solidity = ReadFileTo<Solidity>();
+            var solidity = ReadFileTo<Solidity>(File.ReadAllText(Constants.SolidityInPath));
             var scdList = new List<SmartContractDescriptor>();
+            //TODO: Create an UI
             //TODO:
             foreach (var contract in solidity.Contracts)
             {   var functions = new List<SmartContractDescriptor.Function>();
                 contract.Functions.ForEach(x => functions.Add(new SmartContractDescriptor.Function { Name = x.Name }));
                 scdList.Add(new SmartContractDescriptor { ScdlVersion = solidity.Pragma, Functions = functions });
             }
+            
+            //TODO: Consider template engines and direct serialization
         }
     }
 }

@@ -22,6 +22,9 @@ namespace SCTransformation.Models
         public Uri MetaData { get; set; }
         public string Hash { get; set; }
         public bool IsStateful { get; set; }
+        //TODO: add as missing part
+        public string ContractLanguage { get; set; }
+        public string ContractLanguageVersion { get; set; }
         public List<Function> Functions { get; set; }
         public List<Event> Events { get; set; }
 
