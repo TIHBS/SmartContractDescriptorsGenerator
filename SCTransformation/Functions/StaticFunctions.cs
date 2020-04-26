@@ -20,12 +20,6 @@ namespace SCTransformation.Functions
             {
                 switch (typeof(T).Name)
                 {
-                    case nameof(CSharp):
-                        return ParseCSharp(contents) as T;
-                    case nameof(CPP):
-                        return ParseCPP(contents) as T;
-                    case nameof(Java):
-                        return ParseJava(contents) as T;
                     case nameof(Solidity):
                         return ParseSolidity(contents) as T;
                     case nameof(Vyper):
@@ -42,23 +36,6 @@ namespace SCTransformation.Functions
             return null;
         }
 
-        public static bool WriteFileIn(string filePath, object obj)
-        {
-            try
-            {
-                File.WriteAllText(filePath, JsonConvert.SerializeObject(obj));
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e);
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-
-            return false;
-        }
-
         public static Solidity ParseSolidity(string contents)
         {
             var stream = new AntlrInputStream(contents);
@@ -70,39 +47,29 @@ namespace SCTransformation.Functions
             visitor.VisitSourceUnit(tree);
             return visitor.Solidity;
         }
-        public static CPP ParseCPP(string contents)
-        {
-            return new CPP { };
-        }
-
-        public static CSharp ParseCSharp(string contents)
-        {
-            return new CSharp { };
-        }
-
-        public static Java ParseJava(string contents)
-        {
-            return new Java { };
-        }
 
         public static Vyper ParseVyper(string contents)
         {
             return new Vyper { };
         }
 
-        static void Main(string[] args)
+        public static IEnumerable<SmartContractDescriptor> Transform(string textOfFile, string type)
         {
-            var solidity = ReadFileTo<Solidity>(File.ReadAllText(Constants.SolidityInPath));
-            var scdList = new List<SmartContractDescriptor>();
-            //TODO: Create an UI
-            //TODO:
-            foreach (var contract in solidity.Contracts)
-            {   var functions = new List<SmartContractDescriptor.Function>();
-                contract.Functions.ForEach(x => functions.Add(new SmartContractDescriptor.Function { Name = x.Name }));
-                scdList.Add(new SmartContractDescriptor { ScdlVersion = solidity.Pragma, Functions = functions });
+            switch (type)
+            {
+                case nameof(Solidity):
+                    var solidity = ReadFileTo<Solidity>(textOfFile);
+                    var scdList = new List<SmartContractDescriptor>();
+                    //TODO:
+                    foreach (var contract in solidity.Contracts)
+                    {
+                        var functions = new List<SmartContractDescriptor.Function>();
+                        contract.Functions.ForEach(x => functions.Add(new SmartContractDescriptor.Function {Name = x.Name}));
+                        scdList.Add(new SmartContractDescriptor {ScdlVersion = solidity.Pragma, Functions = functions});
+                    }
+                    return scdList;
             }
-            
-            //TODO: Consider template engines and direct serialization
+            return null;
         }
     }
 }

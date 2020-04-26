@@ -1,46 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using SCTransformation.Models;
 
 namespace SCTransformation.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     public class TransformationController : Controller
     {
-        // GET: api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        [Route("GetSmartContractDescriptor")]
+        public string GetSmartContractDescriptor(string textOfFile, string type)
         {
-            return new string[] { "value1", "value2" };
+            var scd = Functions.StaticFunctions.Transform(textOfFile, type);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(scd);
         }
-
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        
+        [HttpGet]
+        [Route("GetSmartContractInvocationProtocol")]
+        public string GetSmartContractInvocationProtocol(string textOfFile, string type)
         {
-            return "value";
-        }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            //TODO: SCIP
+            //TODO: Consider template engines and direct serialization
+            var scd = Functions.StaticFunctions.Transform(textOfFile, type);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(scd);
         }
     }
 }

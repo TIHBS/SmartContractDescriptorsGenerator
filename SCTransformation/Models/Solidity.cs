@@ -32,6 +32,9 @@ namespace SCTransformation.Models
         public class Function
         {
             public string Name { get; set; }
+            public List<Parameter> Parameters { get; set; }
+            public List<Parameter> ReturnParameters { get; set; }
+            public List<string> EventsGenerated { get; set; }
             public Scope Scope { get; set; }
         }
 

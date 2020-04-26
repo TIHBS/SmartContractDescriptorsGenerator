@@ -51,7 +51,7 @@ namespace SCTransformation.Models
             public string Dispatcher { get; set; }
             public List<Parameter> Inputs { get; set; }
             public List<Parameter> Outputs { get; set; }
-            public List<Event> Events { get; set; }
+            public List<string> Events { get; set; }
         }
 
         public enum Scope
