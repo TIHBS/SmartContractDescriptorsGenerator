@@ -34,7 +34,7 @@ namespace SCTransformation.Models
             public string Name { get; set; }
             public List<Parameter> Parameters { get; set; }
             public List<Parameter> ReturnParameters { get; set; }
-            public List<string> EventsGenerated { get; set; }
+            public ModifierList ModifierList { get; set; }
             public Scope Scope { get; set; }
         }
 
@@ -50,12 +50,36 @@ namespace SCTransformation.Models
             public List<Parameter> Parameters { get; set; }
         }
 
+        public class ModifierList
+        {
+            public StateMutability StateMutability { get; set; }
+            public ModifierInvocation ModifierInvocation { get; set; }
+            public bool IsVirtual { get; set; }
+            public List<string> Override { get; set; }
+        }
+
+        public class ModifierInvocation
+        {
+            public string Identifier { get; set; }
+            public List<string> Expressions { get; set; }
+        }
+
+        public enum StateMutability
+        {
+            None,
+            Pure,
+            Constant,
+            View,
+            Payable
+        }
+
         public class Parameter
         {
             public string Type { get; set; }
             public string Name { get; set; }
             public StorageLocation StorageLocation { get; set; }
         }
+
         public class SolidityEnum
         {
             public string Name { get; set; }
@@ -73,7 +97,6 @@ namespace SCTransformation.Models
             public string Type { get; set; }
             public string Name { get; set; }
             public StorageLocation StorageLocation { get; set; }
-
         }
 
         public enum StorageLocation
@@ -91,11 +114,12 @@ namespace SCTransformation.Models
             External,
             Private
         }
+
         public enum Keyword
         {
             Constant,
-
         }
+
         public enum ContractType
         {
             Interface,

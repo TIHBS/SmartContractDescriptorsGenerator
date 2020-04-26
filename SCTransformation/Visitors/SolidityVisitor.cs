@@ -72,7 +72,7 @@ namespace SCTransformation.Visitors
                         typeof(SolidityParser.StructDefinitionContext))
                     {
                         var variables = new List<Solidity.Variable>();
-                        int index = 0;
+                        var index = 0;
                         contractPart.structDefinition().variableDeclaration().ToList().ForEach(x =>
                         {
                             index++;
@@ -125,12 +125,12 @@ namespace SCTransformation.Visitors
                     else if (contractPart.functionDefinition() != null && contractPart.functionDefinition().GetType() ==
                         typeof(SolidityParser.FunctionDefinitionContext))
                     {
-                        
+                        var functionDefinition = contractPart.functionDefinition();
                         var parameters = new List<Solidity.Parameter>();
                         var index = 0;
-                        if (contractPart.functionDefinition().parameterList() != null)
+                        if (functionDefinition.parameterList() != null)
                         {
-                            contractPart.functionDefinition().parameterList().parameter().ToList().ForEach(x =>
+                            functionDefinition.parameterList().parameter().ToList().ForEach(x =>
                             {
                                 index++;
                                 parameters.Add(new Solidity.Parameter
@@ -138,39 +138,55 @@ namespace SCTransformation.Visitors
                                     Type = x.typeName().GetText(),
                                     Name = x.identifier().GetText(),
                                     StorageLocation = Enum.Parse<Solidity.StorageLocation>(
-                                        contractPart.functionDefinition().parameterList().parameter(index)
+                                        functionDefinition.parameterList().parameter(index)
                                             ?.storageLocation()?.GetText() ?? "none", true)
                                 });
                             });
                         }
-                        
+
                         var returnParameters = new List<Solidity.Parameter>();
                         var returnIndex = 0;
-                        if (contractPart.functionDefinition().parameterList() != null)
+                        if (functionDefinition.returnParameters()?.parameterList() != null)
                         {
-                            contractPart.functionDefinition().returnParameters()?.parameterList()?.parameter().ToList().ForEach(x =>
+                            functionDefinition.returnParameters()?.parameterList()?.parameter().ToList().ForEach(x =>
                             {
                                 returnIndex++;
                                 parameters.Add(new Solidity.Parameter
                                 {
-                                    Type = x.typeName().GetText(),
-                                    Name = x.identifier().GetText(),
+                                    Type = x.typeName()?.GetText(),
+                                    Name = x.identifier()?.GetText(),
                                     StorageLocation = Enum.Parse<Solidity.StorageLocation>(
-                                        contractPart.functionDefinition().returnParameters()?.parameterList()?.parameter(returnIndex)
+                                        functionDefinition.returnParameters()?.parameterList()?.parameter(returnIndex)
                                             ?.storageLocation()?.GetText() ?? "none", true)
                                 });
                             });
                         }
+
+                        var overrides = new List<string>();
+                        functionDefinition.modifierList()?.overrideSpecifier()?.ToList().ForEach(x=>overrides.Add(x.userDefinedTypeName().ToString()));
+                        var expressions = new List<string>();
+                        functionDefinition.modifierList()?.modifierInvocation(0)?.expressionList()?.expression().ToList().ForEach(x=> expressions.Add(x.GetText()));
                         
-                        solidityContract.Functions.Add(new Solidity.Function()
+                        solidityContract.Functions.Add(new Solidity.Function
                         {
-                            Name = contractPart.functionDefinition()?.functionDescriptor()?.GetText(),
+                            Name = functionDefinition.functionDescriptor()?.GetText(),
                             Scope = Enum.Parse<Solidity.Scope>(
-                                contractPart.functionDefinition().scopeDefinition()?.GetText() ?? "public", true),
+                                functionDefinition.scopeDefinition()?.GetText() ?? "public", true),
                             Parameters = parameters,
                             ReturnParameters = returnParameters,
-                            //EventsGenerated = 
-                            
+                            ModifierList = new Solidity.ModifierList
+                            {
+                                ModifierInvocation = new Solidity.ModifierInvocation
+                                {
+                                    Identifier = functionDefinition.modifierList()?.modifierInvocation(0)?.identifier()
+                                        .GetText(),
+                                    Expressions = expressions
+                                    
+                                },
+                                IsVirtual = functionDefinition.modifierList()?.VirtualKeyword()?.ToString()=="virtual",
+                                StateMutability = Enum.Parse<Solidity.StateMutability>(functionDefinition.modifierList()?.stateMutability(0)?.GetText()?? "none",true),
+                                Override = overrides
+                            }
                         });
                     }
                     //TODO:
