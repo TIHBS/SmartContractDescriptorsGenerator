@@ -29,7 +29,6 @@ namespace SCTransformation.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Swagger SCTransformation", Version = "v1" });

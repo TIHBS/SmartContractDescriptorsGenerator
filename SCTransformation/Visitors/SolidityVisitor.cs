@@ -196,7 +196,7 @@ namespace SCTransformation.Visitors
                         solidityContract.StateVariables.Add(new Solidity.StateVariable
                         {
                             Name = contractPart.stateVariableDeclaration()?.identifier()?.GetText(),
-                            Type = contractPart.stateVariableDeclaration().typeName().GetText()
+                            Type = contractPart.stateVariableDeclaration()?.typeName()?.GetText()
                         });
                     }
                 }

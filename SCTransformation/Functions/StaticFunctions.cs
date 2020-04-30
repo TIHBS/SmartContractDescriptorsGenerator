@@ -54,18 +54,19 @@ namespace SCTransformation.Functions
         }
 
         public static IEnumerable<SmartContractDescriptor> Transform(string textOfFile, string type)
-        {
+        {   
+            var scdList = new List<SmartContractDescriptor>();
             switch (type)
             {
                 case nameof(Solidity):
                     var solidity = ReadFileTo<Solidity>(textOfFile);
-                    var scdList = new List<SmartContractDescriptor>();
+                    
                     //TODO:
                     foreach (var contract in solidity.Contracts)
                     {
                         var functions = new List<SmartContractDescriptor.Function>();
                         contract.Functions.ForEach(x => functions.Add(new SmartContractDescriptor.Function {Name = x.Name}));
-                        scdList.Add(new SmartContractDescriptor {ScdlVersion = solidity.Pragma, Functions = functions});
+                        scdList.Add(new SmartContractDescriptor {Name = contract.Name, ScdlVersion = solidity.Pragma, Functions = functions});
                     }
                     return scdList;
             }
