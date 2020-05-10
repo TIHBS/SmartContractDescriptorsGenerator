@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Security.Cryptography.Xml;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SCTransformation.API.Models;
-using SCTransformation.Models;
 
 namespace SCTransformation.API.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [Route("api/")]
     public class TransformationController : Controller
     {
@@ -17,13 +13,12 @@ namespace SCTransformation.API.Controllers
         /// 
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="type"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("GetSmartContractDescriptor")]
         public string GetSmartContractDescriptor([FromBody] Input input)
         {
-            var scd = Functions.StaticFunctions.Transform(input.Content, input.Type);
+            var scd = Functions.SmartContractDescriptor.Transform(input.Content, input.Type);
             return Newtonsoft.Json.JsonConvert.SerializeObject(scd);
         }
 
@@ -31,16 +26,13 @@ namespace SCTransformation.API.Controllers
         /// 
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="type"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("GetSmartContractInvocationProtocol")]
         public string GetSmartContractInvocationProtocol([FromBody] Input input)
         {
-            //TODO: SCIP
-            //TODO: Consider template engines and direct serialization
-            var scd = Functions.StaticFunctions.Transform(input.Content, input.Type);
-            return Newtonsoft.Json.JsonConvert.SerializeObject(scd);
+            var path = Functions.SmartContractInvocationProtocol.Build(input.Content, input.Type);
+            return path;
         }
     }
 }

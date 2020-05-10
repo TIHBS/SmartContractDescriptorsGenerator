@@ -20,6 +20,7 @@ namespace SCTransformation.Models
             public List<SolidityEnum> Enums { get; set; }
             public List<Struct> Structs { get; set; }
             public ContractType ContractType { get; set; }
+            public bool Abstract { get; set; }
         }
 
         public class StateVariable
@@ -41,7 +42,8 @@ namespace SCTransformation.Models
         public class Event
         {
             public string Name { get; set; }
-            public Scope Scope { get; set; }
+            public List<EventParameter> EventParameters { get; set; }
+            public bool Anonymous { get; set; }
         }
 
         public class Modifier
@@ -78,6 +80,13 @@ namespace SCTransformation.Models
             public string Type { get; set; }
             public string Name { get; set; }
             public StorageLocation StorageLocation { get; set; }
+        }
+
+        public class EventParameter
+        {
+            public string Type { get; set; }
+            public string Name { get; set; }
+            public bool IsIndexed { get; set; }
         }
 
         public class SolidityEnum

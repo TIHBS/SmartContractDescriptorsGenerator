@@ -12,21 +12,25 @@ namespace SCTransformation.Visitors
 
         public SolidityVisitor()
         {
-            Solidity = new Solidity {Contracts = new List<Solidity.Contract>(), Imports = new List<string>()};
+            Solidity = new Solidity
+            {
+                Contracts = new List<Solidity.Contract>(),
+                Imports = new List<string>()
+            };
         }
 
         public override object VisitSourceUnit(SolidityParser.SourceUnitContext context)
         {
             var contracts = context.contractDefinition();
-            var pragma = context.pragmaDirective(0);
+            var pragma = context.pragmaDirective().FirstOrDefault();
             var imports = context.importDirective();
-            Solidity.Pragma = pragma.pragmaName().GetText() +
-                              pragma.pragmaValue().GetText();
+            Solidity.Pragma = pragma?.pragmaName()?.GetText() +
+                              pragma?.pragmaValue()?.GetText();
             if (imports != null)
             {
                 foreach (var import in imports)
                 {
-                    Solidity.Imports.Add(import.StringLiteralFragment().GetText());
+                    Solidity.Imports.Add(import.StringLiteralFragment()?.GetText());
                 }
             }
 
@@ -34,13 +38,14 @@ namespace SCTransformation.Visitors
             {
                 var solidityContract = new Solidity.Contract
                 {
-                    Name = contract.identifier().GetText(),
+                    Name = contract.identifier()?.GetText(),
                     Events = new List<Solidity.Event>(),
                     Enums = new List<Solidity.SolidityEnum>(),
                     Structs = new List<Solidity.Struct>(),
                     Functions = new List<Solidity.Function>(),
                     Modifiers = new List<Solidity.Modifier>(),
-                    StateVariables = new List<Solidity.StateVariable>()
+                    StateVariables = new List<Solidity.StateVariable>(),
+                    Abstract = contract.GetText().Contains("abstract")
                 };
                 if (contract.GetText().Contains("contract"))
                 {
@@ -65,7 +70,10 @@ namespace SCTransformation.Visitors
                             .ForEach(x => enums.Add(x.identifier().GetText()));
 
                         solidityContract.Enums.Add(new Solidity.SolidityEnum
-                            {Name = contractPart.enumDefinition().identifier().GetText(), Enums = enums});
+                        {
+                            Name = contractPart.enumDefinition().identifier().GetText(),
+                            Enums = enums
+                        });
                     }
 
                     else if (contractPart.structDefinition() != null && contractPart.structDefinition().GetType() ==
@@ -116,12 +124,27 @@ namespace SCTransformation.Visitors
                         });
                     }
 
-                    //TODO:
                     else if (contractPart.eventDefinition() != null && contractPart.eventDefinition().GetType() ==
                         typeof(SolidityParser.EventDefinitionContext))
                     {
+                        var eventDefinition = contractPart.eventDefinition();
+                        var parameters = new List<Solidity.EventParameter>();
+                        eventDefinition.eventParameterList()?.eventParameter()?.ToList().ForEach(x =>
+                            parameters.Add(new Solidity.EventParameter
+                            {
+                                Type = x.typeName()?.GetText(),
+                                Name = x.identifier()?.GetText(),
+                                IsIndexed = x.IndexedKeyword()?.GetText() != "indexed"
+                            }));
+
+                        solidityContract.Events.Add(new Solidity.Event
+                        {
+                            Name = eventDefinition.identifier()?.GetText(),
+                            EventParameters = parameters,
+                            Anonymous = eventDefinition.AnonymousKeyword()?.GetText() == "anonymous"
+                        });
                     }
-                    //TODO:
+
                     else if (contractPart.functionDefinition() != null && contractPart.functionDefinition().GetType() ==
                         typeof(SolidityParser.FunctionDefinitionContext))
                     {
@@ -163,13 +186,15 @@ namespace SCTransformation.Visitors
                         }
 
                         var overrides = new List<string>();
-                        functionDefinition.modifierList()?.overrideSpecifier()?.ToList().ForEach(x=>overrides.Add(x.userDefinedTypeName().ToString()));
+                        functionDefinition.modifierList()?.overrideSpecifier()?.ToList()
+                            .ForEach(x => overrides.Add(x.userDefinedTypeName().ToString()));
                         var expressions = new List<string>();
-                        functionDefinition.modifierList()?.modifierInvocation(0)?.expressionList()?.expression().ToList().ForEach(x=> expressions.Add(x.GetText()));
-                        
+                        functionDefinition.modifierList()?.modifierInvocation().FirstOrDefault()?.expressionList()?.expression()
+                            .ToList().ForEach(x => expressions.Add(x.GetText()));
+
                         solidityContract.Functions.Add(new Solidity.Function
                         {
-                            Name = functionDefinition.functionDescriptor()?.GetText(),
+                            Name = functionDefinition.functionDescriptor()?.identifier()?.GetText(),
                             Scope = Enum.Parse<Solidity.Scope>(
                                 functionDefinition.scopeDefinition()?.GetText() ?? "public", true),
                             Parameters = parameters,
@@ -178,17 +203,19 @@ namespace SCTransformation.Visitors
                             {
                                 ModifierInvocation = new Solidity.ModifierInvocation
                                 {
-                                    Identifier = functionDefinition.modifierList()?.modifierInvocation(0)?.identifier()
+                                    Identifier = functionDefinition.modifierList()?.modifierInvocation().FirstOrDefault()?.identifier()
                                         .GetText(),
                                     Expressions = expressions
-                                    
                                 },
-                                IsVirtual = functionDefinition.modifierList()?.VirtualKeyword()?.ToString()=="virtual",
-                                StateMutability = Enum.Parse<Solidity.StateMutability>(functionDefinition.modifierList()?.stateMutability(0)?.GetText()?? "none",true),
-                                Override = overrides
+                                IsVirtual =
+                                    functionDefinition.modifierList()?.VirtualKeyword()?.ToString() == "virtual",
+                                StateMutability = Enum.Parse<Solidity.StateMutability>(
+                                    functionDefinition.modifierList()?.stateMutability().FirstOrDefault()?.GetText() ?? "none", true),
+                                Override = overrides,
                             }
                         });
                     }
+
                     //TODO:
                     else if (contractPart.stateVariableDeclaration() != null && contractPart.stateVariableDeclaration()
                         .GetType() == typeof(SolidityParser.StateVariableDeclarationContext))
