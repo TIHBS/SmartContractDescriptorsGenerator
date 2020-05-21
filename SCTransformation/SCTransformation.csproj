@@ -2,7 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-        <OutputType>Library</OutputType>
+        <OutputType>Exe</OutputType>
+        <StartupObject>SCTransformation.Functions.SmartContractInvocationProtocol</StartupObject>
     </PropertyGroup>
     <ItemGroup>
         <Folder Include="Grammars\Solidity" />
@@ -13,10 +14,13 @@
         <Folder Include="Grammars\JavaScript\" />
         <Folder Include="Grammars\Go\" />
         <Folder Include="Grammars\Vyper\" />
+        <Folder Include="Templates\CSharpApplication" />
+        <Folder Include="Templates\JavaApplication\Model" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Antlr4" Version="4.6.6" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="StringTemplate4" Version="4.0.8" />
     </ItemGroup>
     <ItemGroup>
         <Compile Remove="Resources\in.cs" />
@@ -59,5 +63,55 @@
             <ForceAtn></ForceAtn>-->
             <CopyToOutputDirectory></CopyToOutputDirectory>
         </Antlr4>
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="Templates\JavaApplication\Scipclient\ClientApplicationService.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Scipclient\ClientApplicationService.java.st" />
+      <None Remove="Templates\JavaApplication\Scipclient\ScipClient.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Scipclient\ScipClient.java.st" />
+      <None Remove="Templates\JavaApplication\Exceptions\BalException.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Exceptions\BalException.java.st" />
+      <None Remove="Templates\JavaApplication\Exceptions\ExceptionCode.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Exceptions\ExceptionCode.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Common\Occurrence.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Common\Occurrence.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Common\Parameter.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Common\Parameter.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Common\TimeFrame.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Common\TimeFrame.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Request\Scip\AsyncScipRequestMessage.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Request\Scip\AsyncScipRequestMessage.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Request\Scip\InvocationRequestMessage.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Request\Scip\InvocationRequestMessage.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Request\Scip\QueryRequestMessage.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Request\Scip\QueryRequestMessage.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Request\Scip\ScipRequestMessage.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Request\Scip\ScipRequestMessage.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Request\Scip\SubscriptionRequestMessage.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Request\Scip\SubscriptionRequestMessage.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Response\Scip\AbstractScipResponse.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Response\Scip\AbstractScipResponse.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Response\Scip\GenericResponseMessage.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Response\Scip\GenericResponseMessage.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Response\Scip\InvokeResponse.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Response\Scip\InvokeResponse.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Response\Scip\QueryResponse.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Response\Scip\QueryResponse.java.st" />
+      <None Remove="Templates\JavaApplication\Model\Response\Scip\SubscribeResponse.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Model\Response\Scip\SubscribeResponse.java.st" />
+      <None Remove="Templates\JavaApplication\utils\Correlation\AsyncRequestCorrelationManager.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\utils\Correlation\AsyncRequestCorrelationManager.java.st" />
+      <None Remove="Templates\JavaApplication\utils\JsonRpcIdGenerator.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\utils\JsonRpcIdGenerator.java.st" />
+      <None Remove="Templates\JavaApplication\utils\ScdlTypes.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\utils\ScdlTypes.java.st" />
+      <None Remove="Templates\JavaApplication\utils\TimeUtils.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\utils\TimeUtils.java.st" />
+      <None Remove="Templates\JavaApplication\Application.java.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\Application.java.st" />
+      <None Remove="Templates\JavaApplication\clientapplication.iml.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\clientapplication.iml.st" />
+      <None Remove="Templates\JavaApplication\pom.xml.st" />
+      <EmbeddedResource Include="Templates\JavaApplication\pom.xml.st" />
     </ItemGroup>
 </Project>
