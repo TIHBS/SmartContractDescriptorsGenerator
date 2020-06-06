@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SCTransformation.API.Models;
+using SCTransformation.Functions;
 
 namespace SCTransformation.API.Controllers
 {
@@ -16,9 +17,9 @@ namespace SCTransformation.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("GetSmartContractDescriptor")]
-        public string GetSmartContractDescriptor([FromBody] Input input)
+        public string GetSmartContractDescriptor([FromBody] SCDInput input)
         {
-            var scd = Functions.SmartContractDescriptor.Transform(input.Content, input.Type);
+            var scd = SmartContractDescriptorGenerator.Transform(input.Content, input.Type);
             return Newtonsoft.Json.JsonConvert.SerializeObject(scd);
         }
 
@@ -29,9 +30,9 @@ namespace SCTransformation.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("GetSmartContractInvocationProtocol")]
-        public string GetSmartContractInvocationProtocol([FromBody] Input input)
+        public string GetSmartContractInvocationProtocol([FromBody] SCIPInput input)
         {
-            var path = Functions.SmartContractInvocationProtocol.Build(input.Content, input.Type);
+            var path = ClientApplicationGenerator.Build(input.Content, input.PackageName);
             return path;
         }
     }

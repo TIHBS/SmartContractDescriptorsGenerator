@@ -2,21 +2,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SCTransformation.API.Models
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public class Input
+    public class SCIPInput
     {
         /// <summary>
-        /// 
+        /// Content of Smart contract descriptor
         /// </summary>
         [Required]
         public string Content { get; set; }
-
         /// <summary>
-        /// 
+        /// Package name of client app to be generated
         /// </summary>
         [Required]
-        public string Type { get; set; }
+        public string PackageName { get; set; }
     }
 }
