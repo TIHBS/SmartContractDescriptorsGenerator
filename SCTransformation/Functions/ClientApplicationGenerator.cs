@@ -14,6 +14,7 @@ namespace SCTransformation.Functions
         private static string _applicationDirectory =
             $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/client_application";
 
+        //TODO: Delete
         public static void Main(string[] args)
         {
             var functions = new List<SmartContractDescriptor.Function>
@@ -58,7 +59,7 @@ namespace SCTransformation.Functions
             }
 
             var sourceDirectory = $"{_applicationDirectory}/src/main/java/{packageName}";
-
+            //TODO:
             return $"{sourceDirectory}/";
         }
 
@@ -79,6 +80,7 @@ namespace SCTransformation.Functions
 
                     File.WriteAllText(path, Regex.Unescape(renderedTemplate));
                 }
+
                 return true;
             }
             catch (Exception e)
