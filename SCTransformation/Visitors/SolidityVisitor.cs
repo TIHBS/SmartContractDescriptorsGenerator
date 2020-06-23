@@ -24,6 +24,7 @@ namespace SCTransformation.Visitors
             var contracts = context.contractDefinition();
             var pragma = context.pragmaDirective().FirstOrDefault();
             var imports = context.importDirective();
+            Solidity.BlockChainType = GetBlockChainType(context);
             Solidity.Pragma = pragma?.pragmaName()?.GetText() +
                               pragma?.pragmaValue()?.GetText();
             if (imports != null)
@@ -47,17 +48,13 @@ namespace SCTransformation.Visitors
                     StateVariables = new List<Solidity.StateVariable>(),
                     Abstract = contract.GetText().Contains("abstract")
                 };
-                if (contract.GetText().Contains("contract"))
+                if (contract.GetText().Contains("interface"))
                 {
-                    solidityContract.ContractType = Solidity.ContractType.Contract;
+                    continue;
                 }
-                else if (contract.GetText().Contains("interface"))
+                if (contract.GetText().Contains("library"))
                 {
-                    solidityContract.ContractType = Solidity.ContractType.Interface;
-                }
-                else
-                {
-                    solidityContract.ContractType = Solidity.ContractType.Library;
+                   continue;
                 }
 
                 foreach (var contractPart in contract.contractPart())
@@ -93,8 +90,11 @@ namespace SCTransformation.Visitors
                                 Type = x.typeName().GetText()
                             });
                         });
-                        solidityContract.Structs.Add(new Solidity.Struct()
-                            {Name = contractPart.structDefinition().identifier().GetText(), Variables = variables});
+                        solidityContract.Structs.Add(new Solidity.Struct
+                        {
+                            Name = contractPart.structDefinition().identifier().GetText(),
+                            Variables = variables
+                        });
                     }
 
                     else if (contractPart.modifierDefinition() != null && contractPart.modifierDefinition().GetType() ==
@@ -189,13 +189,14 @@ namespace SCTransformation.Visitors
                         functionDefinition.modifierList()?.overrideSpecifier()?.ToList()
                             .ForEach(x => overrides.Add(x.userDefinedTypeName().ToString()));
                         var expressions = new List<string>();
-                        functionDefinition.modifierList()?.modifierInvocation().FirstOrDefault()?.expressionList()?.expression()
+                        functionDefinition.modifierList()?.modifierInvocation().FirstOrDefault()?.expressionList()
+                            ?.expression()
                             .ToList().ForEach(x => expressions.Add(x.GetText()));
 
-                        solidityContract.Functions.Add(new Solidity.Function
+                        var function = new Solidity.Function
                         {
                             Name = functionDefinition.functionDescriptor()?.identifier()?.GetText(),
-                            Scope = Enum.Parse<Solidity.Scope>(
+                            Scope = Enum.Parse<Scope>(
                                 functionDefinition.scopeDefinition()?.GetText() ?? "public", true),
                             Parameters = parameters,
                             ReturnParameters = returnParameters,
@@ -203,27 +204,40 @@ namespace SCTransformation.Visitors
                             {
                                 ModifierInvocation = new Solidity.ModifierInvocation
                                 {
-                                    Identifier = functionDefinition.modifierList()?.modifierInvocation().FirstOrDefault()?.identifier()
+                                    Identifier = functionDefinition.modifierList()?.modifierInvocation()
+                                        .FirstOrDefault()?.identifier()
                                         .GetText(),
                                     Expressions = expressions
                                 },
                                 IsVirtual =
                                     functionDefinition.modifierList()?.VirtualKeyword()?.ToString() == "virtual",
-                                StateMutability = Enum.Parse<Solidity.StateMutability>(
-                                    functionDefinition.modifierList()?.stateMutability().FirstOrDefault()?.GetText() ?? "none", true),
+                                StateMutability = GetStateMutability(functionDefinition.modifierList()
+                                    ?.stateMutability().FirstOrDefault()?.GetText()),
                                 Override = overrides,
                             }
-                        });
+                        };
+                        solidityContract.IsStateful = IsStateful(function.ModifierList.StateMutability);
+                        solidityContract.Functions.Add(function);
                     }
 
-                    //TODO:
                     else if (contractPart.stateVariableDeclaration() != null && contractPart.stateVariableDeclaration()
                         .GetType() == typeof(SolidityParser.StateVariableDeclarationContext))
                     {
+                        var stateVar = contractPart.stateVariableDeclaration();
+                        var keywords = new List<string>
+                        {
+                            stateVar.ConstantKeyword()?.ToString(),
+                            stateVar.ImmutableKeyword()?.ToString(),
+                            stateVar.InternalKeyword()?.ToString(),
+                            stateVar.PrivateKeyword()?.ToString(),
+                            stateVar.PublicKeyword()?.ToString()
+                        };
+
                         solidityContract.StateVariables.Add(new Solidity.StateVariable
                         {
                             Name = contractPart.stateVariableDeclaration()?.identifier()?.GetText(),
-                            Type = contractPart.stateVariableDeclaration()?.typeName()?.GetText()
+                            Type = contractPart.stateVariableDeclaration()?.typeName()?.GetText(),
+                            Keywords = keywords
                         });
                     }
                 }
@@ -232,6 +246,47 @@ namespace SCTransformation.Visitors
             }
 
             return null;
+        }
+
+        private Solidity.StateMutability GetStateMutability(string stateText)
+        {
+            return stateText != null ? Enum.Parse<Solidity.StateMutability>(stateText, true) : Solidity.StateMutability.None;
+        }
+
+        private bool IsStateful(Solidity.StateMutability stateMutability)
+        {
+            return stateMutability switch
+            {
+                //TODO:
+                Solidity.StateMutability.Constant => true,
+                Solidity.StateMutability.Payable => true,
+                _ => false
+            };
+        }
+
+        private BlockChainType GetBlockChainType(SolidityParser.SourceUnitContext context)
+        {
+            if (context.GetText().ToLower().Contains("ethereum"))
+            {
+                return BlockChainType.Ethereum;
+            }
+
+            if (context.GetText().ToLower().Contains("bitcoin"))
+            {
+                return BlockChainType.Bitcoin;
+            }
+
+            if (context.GetText().ToLower().Contains("neo"))
+            {
+                return BlockChainType.Neo;
+            }
+
+            if (context.GetText().ToLower().Contains("fabric"))
+            {
+                return BlockChainType.Fabric;
+            }
+
+            return BlockChainType.Ethereum;
         }
     }
 }

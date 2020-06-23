@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+﻿using System.Collections.Generic;
 
 namespace SCTransformation.Models
 {
     public class Solidity
     {
+        public string RawFileContent { get; set; }
         public string Pragma { get; set; }
         public List<string> Imports { get; set; }
         public List<Contract> Contracts { get; set; }
-
+        public BlockChainType BlockChainType { get; set; }
         public class Contract
         {
+            public bool IsStateful { get; set; }
             public string Name { get; set; }
             public List<StateVariable> StateVariables { get; set; }
             public List<Function> Functions { get; set; }
@@ -19,7 +19,6 @@ namespace SCTransformation.Models
             public List<Modifier> Modifiers { get; set; }
             public List<SolidityEnum> Enums { get; set; }
             public List<Struct> Structs { get; set; }
-            public ContractType ContractType { get; set; }
             public bool Abstract { get; set; }
         }
 
@@ -27,7 +26,7 @@ namespace SCTransformation.Models
         {
             public string Type { get; set; }
             public string Name { get; set; }
-            public List<Keyword> Keywords { get; set; }
+            public List<string> Keywords { get; set; }
         }
 
         public class Function
@@ -114,26 +113,6 @@ namespace SCTransformation.Models
             Memory,
             Storage,
             CallData
-        }
-
-        public enum Scope
-        {
-            Public,
-            Internal,
-            External,
-            Private
-        }
-
-        public enum Keyword
-        {
-            Constant,
-        }
-
-        public enum ContractType
-        {
-            Interface,
-            Library,
-            Contract
         }
     }
 }

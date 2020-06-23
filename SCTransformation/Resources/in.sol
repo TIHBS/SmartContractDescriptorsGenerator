@@ -1,3 +1,11 @@
+// Author: Umut Onat Artuvan
+/// Author: Umut Onat Artuvan
+/* @author Umut Onat Artuvan
+Author: Umut Onat Artuvan
+*/
+/**
+Author: Umut Onat Artuvan
+*/
 pragma solidity 0.4.4;
 pragma solidity ^0.4.4;
 pragma solidity ~0.4.4;

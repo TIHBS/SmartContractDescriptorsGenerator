@@ -15,7 +15,7 @@ namespace SCTransformation.Models
         public DateTime CreatedOn { get; set; }
         public DateTime UpdatedOn { get; set; }
         public LifeCycle LifeCycle { get; set; }
-        public string SclAddress { get; set; } //TODO: Type SCL Address
+        public Uri SclAddress { get; set; }
         public BlockChainType BlockChainType { get; set; }
         public string BlockChainVersion { get; set; }
         public string InternalAddress { get; set; }
@@ -54,15 +54,15 @@ namespace SCTransformation.Models
             public List<string> Events { get; set; }
         }
 
-        public enum Scope
-        {
-            Public,
-            Private,
-            Internal,
-            External
-        }
+        
     }
-
+    public enum Scope
+    {
+        Public,
+        Private,
+        Internal,
+        External
+    }
     public enum BlockChainType
     {
         Ethereum,

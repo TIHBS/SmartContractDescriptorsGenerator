@@ -13,7 +13,8 @@ namespace SCTransformation.API.Models
         [Required]
         public string Content { get; set; }
         /// <summary>
-        /// Provide type of Content
+        /// Provide type of Smart Contract file, case sensitive
+        /// Solidity, Go, JavaScript
         /// </summary>
         [Required]
         public string Type { get; set; }

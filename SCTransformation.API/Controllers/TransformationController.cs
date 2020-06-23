@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SCTransformation.API.Models;
-using SCTransformation.Functions;
 
 namespace SCTransformation.API.Controllers
 {
@@ -32,7 +31,7 @@ namespace SCTransformation.API.Controllers
         [Route("GetSmartContractInvocationProtocol")]
         public string GetSmartContractInvocationProtocol([FromBody] SCIPInput input)
         {
-            var path = ClientApplicationGenerator.Build(input.Content, input.PackageName);
+            var path = ClientApplicationGenerator.Build(input.Content, input.PackageName, input.CallbackUrl);
             return path;
         }
     }

@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SCTransformation.API.Models
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class SCIPInput
     {
         /// <summary>
@@ -14,5 +17,10 @@ namespace SCTransformation.API.Models
         /// </summary>
         [Required]
         public string PackageName { get; set; }
+        /// <summary>
+        /// CallbackUrl for Client App
+        /// </summary>
+        [Required]
+        public string CallbackUrl { get; set; }
     }
 }
