@@ -24,9 +24,7 @@ namespace SCTransformation
                 "Solidity");
             BuildJavaApplication(scds.First(), "com.danyue", "call");
         }
-
         
-
         private static string BuildJavaApplication(SmartContractDescriptor smartContractDescriptor,
             string packageName, string callbackUrl)
         {
@@ -125,10 +123,25 @@ namespace SCTransformation
                         {
                             var template = CreateFreshTemplate(stream, smartContractDescriptor, packageName,
                                 callbackUrl);
-                            template.Add("eventArray", new[] {scEvent.Name});
+                            var privateEvent= new Event
+                            {
+                                Name = scEvent.Name,
+                                FirstCapital = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo
+                                    .ToTitleCase(
+                                        scEvent.Name.ToLower())
+                            };
+                            template.Add("eventArray", new[] {privateEvent});
                             foreach (var parameter in scEvent.Outputs)
                             {
-                                template.Add("eventoutputparameterarray", new[] {parameter});
+                                var privateParameter = new Parameter
+                                {
+                                    FirstCapital = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo
+                                        .ToTitleCase(
+                                            parameter.Name.ToLower()),
+                                    Name = parameter.Name,
+                                    ParamType = parameter.Type
+                                };
+                                template.Add("eventoutputparameterarray", new[] {privateParameter});
                             }
 
                             controllerEvents += template.Render();
@@ -250,6 +263,11 @@ namespace SCTransformation
         }
 
         private class Function
+        {
+            public string Name;
+            public string FirstCapital;
+        }
+        private class Event
         {
             public string Name;
             public string FirstCapital;

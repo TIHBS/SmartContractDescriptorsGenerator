@@ -135,7 +135,7 @@ namespace SCTransformation
                     {
                         Name = function.Name,
                         Description = string.Empty,
-                        Dispatcher = "", //TODO: 
+                        Dispatcher = string.Empty, //TODO: 
                         Events = new List<string>(), //TODO:
                         HasSideEffects = false, //TODO:
                         Inputs = inputs,

@@ -2,8 +2,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-        <OutputType>Exe</OutputType>
-        <StartupObject>SCTransformation.ClientApplicationGenerator</StartupObject>
+        <RuntimeIdentifiers>win10-x64;linux-x64;osx-x64</RuntimeIdentifiers>
+        <!--<OutputType>Exe</OutputType>
+        <StartupObject>SCTransformation.ClientApplicationGenerator</StartupObject>-->
     </PropertyGroup>
     <ItemGroup>
         <Folder Include="Grammars\Solidity" />
