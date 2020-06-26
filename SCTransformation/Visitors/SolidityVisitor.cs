@@ -184,6 +184,18 @@ namespace SCTransformation.Visitors
                                 });
                             });
                         }
+                        
+                        var events= new List<string>();
+                        if (functionDefinition.block()?.statement() != null && functionDefinition.block()?.statement().GetType()== typeof(SolidityParser.StatementContext[]))
+                        {
+                            foreach (var body in functionDefinition.block().statement())
+                            {
+                                if (body?.emitStatement()!=null && body.emitStatement().GetType() == typeof(SolidityParser.EmitStatementContext))
+                                {
+                                    events.Add(body.emitStatement().functionCall().expression().GetText());
+                                }
+                            }
+                        }
 
                         var overrides = new List<string>();
                         functionDefinition.modifierList()?.overrideSpecifier()?.ToList()
@@ -199,7 +211,10 @@ namespace SCTransformation.Visitors
                             Scope = Enum.Parse<Scope>(
                                 functionDefinition.scopeDefinition()?.GetText() ?? "public", true),
                             Parameters = parameters,
+                            Events = events,
                             ReturnParameters = returnParameters,
+                            HasSideEffects = IsStateful(GetStateMutability(functionDefinition.modifierList()
+                                ?.stateMutability().FirstOrDefault()?.GetText())),
                             ModifierList = new Solidity.ModifierList
                             {
                                 ModifierInvocation = new Solidity.ModifierInvocation
@@ -257,9 +272,8 @@ namespace SCTransformation.Visitors
         {
             return stateMutability switch
             {
-                //TODO:
-                Solidity.StateMutability.Constant => true,
-                Solidity.StateMutability.Payable => true,
+                Solidity.StateMutability.View => true,
+                Solidity.StateMutability.Pure => true,
                 _ => false
             };
         }

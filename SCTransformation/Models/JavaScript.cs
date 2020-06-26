@@ -35,9 +35,10 @@ namespace SCTransformation.Models
         public class Function
         {
             public string Name { get; set; }
-            public string EventName { get; set; }
+            public List<string> Events { get; set; }
             public List<Parameter> Inputs { get; set; }
             public List<Parameter> Outputs { get; set; }
+            public bool HasSideEffects { get; set; }
         }
     }
 }

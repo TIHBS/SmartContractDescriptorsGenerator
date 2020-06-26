@@ -111,6 +111,7 @@ namespace SCTransformation
                 {
                     var inputs = new List<SmartContractDescriptor.Parameter>();
                     var outputs = new List<SmartContractDescriptor.Parameter>();
+                    var functionEvents=  new List<string>();
                     foreach (var input in function.Parameters)
                     {
                         inputs.Add(new SmartContractDescriptor.Parameter
@@ -131,13 +132,18 @@ namespace SCTransformation
                         });
                     }
 
+                    foreach (var functionEvent in function.Events)
+                    {
+                        functionEvents.Add(functionEvent);
+                    }
+
                     functions.Add(new SmartContractDescriptor.Function
                     {
                         Name = function.Name,
                         Description = string.Empty,
-                        Dispatcher = string.Empty, //TODO: 
-                        Events = new List<string>(), //TODO:
-                        HasSideEffects = false, //TODO:
+                        Dispatcher = string.Empty,
+                        Events = functionEvents,
+                        HasSideEffects = function.HasSideEffects,
                         Inputs = inputs,
                         Outputs = outputs,
                         Scope = function.Scope
@@ -202,62 +208,66 @@ namespace SCTransformation
             methods.AddRange(javaScript.Functions);
             foreach (var function in methods)
             {
-                if (function.EventName != null)
+                var inputs = new List<SmartContractDescriptor.Parameter>();
+                var outputs = new List<SmartContractDescriptor.Parameter>();
+                var functionEvents = new List<string>();
+                foreach (var input in function.Inputs)
                 {
-                    var inputs = new List<SmartContractDescriptor.Parameter>();
-                    var outputs = new List<SmartContractDescriptor.Parameter>();
-                    foreach (var input in function.Inputs)
+                    inputs.Add(new SmartContractDescriptor.Parameter
                     {
-                        inputs.Add(new SmartContractDescriptor.Parameter
-                        {
-                            Name = input.Name,
-                            Type = input.Type,
-                            IsIndexed = false
-                        });
-                    }
-
-                    foreach (var output in function.Outputs)
-                    {
-                        outputs.Add(new SmartContractDescriptor.Parameter
-                        {
-                            Name = output.Name,
-                            Type = output.Type,
-                            IsIndexed = false
-                        });
-                    }
-
-                    functions.Add(new SmartContractDescriptor.Function
-                    {
-                        Name = function.Name,
-                        Description = string.Empty,
-                        Dispatcher = "", //TODO: 
-                        Events = new List<string>(), //TODO:
-                        HasSideEffects = false, //TODO:
-                        Inputs = inputs,
-                        Outputs = outputs,
-                        Scope = Scope.Public
+                        Name = input.Name,
+                        Type = input.Type,
+                        IsIndexed = false
                     });
                 }
-                else
-                {
-                    var outputs = new List<SmartContractDescriptor.Parameter>();
-                    foreach (var output in function.Outputs)
-                    {
-                        outputs.Add(new SmartContractDescriptor.Parameter
-                        {
-                            Name = output.Name,
-                            Type = output.Type,
-                            IsIndexed = false
-                        });
-                    }
 
-                    events.Add(new SmartContractDescriptor.Event
+                foreach (var output in function.Outputs)
+                {
+                    outputs.Add(new SmartContractDescriptor.Parameter
                     {
-                        Name = function.Name,
-                        Description = string.Empty,
-                        Outputs = outputs
+                        Name = output.Name,
+                        Type = output.Type,
+                        IsIndexed = false
                     });
                 }
+
+                if (function.Events.Count > 0)
+                {
+                    foreach (var functionEvent in function.Events)
+                    {
+                        var eventOutputs = new List<SmartContractDescriptor.Parameter>();
+                        foreach (var output in function.Outputs)
+                        {
+                            eventOutputs.Add(new SmartContractDescriptor.Parameter
+                            {
+                                Name = output.Name,
+                                Type = output.Type,
+                                IsIndexed = false
+                            });
+                        }
+
+                        functionEvents.Add(functionEvent);
+
+                        events.Add(new SmartContractDescriptor.Event
+                        {
+                            Name = functionEvent,
+                            Description = string.Empty,
+                            Outputs = eventOutputs
+                        });
+                    }
+                }
+
+                functions.Add(new SmartContractDescriptor.Function
+                {
+                    Name = function.Name,
+                    Description = string.Empty,
+                    Dispatcher = string.Empty,
+                    Events = functionEvents,
+                    HasSideEffects = function.HasSideEffects,
+                    Inputs = inputs,
+                    Outputs = outputs,
+                    Scope = Scope.Public
+                });
             }
 
             var scdList = new List<SmartContractDescriptor>
@@ -322,9 +332,9 @@ namespace SCTransformation
                 {
                     Name = function.Name,
                     Description = string.Empty,
-                    Dispatcher = "", //TODO: 
-                    Events = new List<string>(), //TODO:
-                    HasSideEffects = false, //TODO:
+                    Dispatcher = string.Empty,
+                    Events = new List<string>(),
+                    HasSideEffects = false,
                     Inputs = inputs,
                     Outputs = outputs,
                     Scope = Scope.Public

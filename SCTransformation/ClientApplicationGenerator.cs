@@ -20,9 +20,9 @@ namespace SCTransformation
         {
             var scds = SmartContractDescriptorGenerator.Transform(
                 File.ReadAllText(
-                    "/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/Resources/in.sol"),
-                "Solidity");
-            BuildJavaApplication(scds.First(), "com.danyue", "call");
+                    "/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/Resources/in.js"),
+                "JavaScript");
+            BuildJavaApplication(scds.First(), "com.uni.stuttgart", "callback");
         }
         
         private static string BuildJavaApplication(SmartContractDescriptor smartContractDescriptor,
@@ -45,15 +45,11 @@ namespace SCTransformation
                         var smartContractPath = path.Replace("smartcontract", smartContractDescriptor.Name.ToLower());
                         foreach (var function in smartContractDescriptor.Functions)
                         {
-                            var tempPath = smartContractPath.Replace("Function",
-                                System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(
-                                    function.Name.ToLower()));
+                            var tempPath = smartContractPath.Replace("Function", ToUpperFirstLetter(function.Name));
 
                             var functionTemplate = CreateFreshTemplate(stream, smartContractDescriptor, packageName,
                                 callbackUrl);
-                            functionTemplate.Add("functionParameterName",
-                                System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(
-                                    function.Name.ToLower()));
+                            functionTemplate.Add("functionParameterName", ToUpperFirstLetter(function.Name));
                             foreach (var parameter in function.Inputs)
                             {
                                 functionTemplate.Add("parameterarray",
@@ -81,24 +77,18 @@ namespace SCTransformation
                         {
                             var template = CreateFreshTemplate(stream, smartContractDescriptor, packageName,
                                 callbackUrl);
-                            template.Add("functionParameter",
-                                System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(
-                                    function.Name.ToLower()));
+                            template.Add("functionParameter", ToUpperFirstLetter(function.Name));
                             var privateFunction = new Function
                             {
                                 Name = function.Name,
-                                FirstCapital = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo
-                                    .ToTitleCase(
-                                        function.Name.ToLower())
+                                FirstCapital = ToUpperFirstLetter(function.Name)
                             };
                             template.Add("functionArray", new[] {privateFunction});
                             foreach (var parameter in function.Inputs)
                             {
                                 var privateParameter = new Parameter
                                 {
-                                    FirstCapital = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo
-                                        .ToTitleCase(
-                                            parameter.Name.ToLower()),
+                                    FirstCapital = ToUpperFirstLetter(parameter.Name),
                                     Name = parameter.Name,
                                     ParamType = parameter.Type
                                 };
@@ -126,18 +116,14 @@ namespace SCTransformation
                             var privateEvent= new Event
                             {
                                 Name = scEvent.Name,
-                                FirstCapital = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo
-                                    .ToTitleCase(
-                                        scEvent.Name.ToLower())
+                                FirstCapital = ToUpperFirstLetter(scEvent.Name)
                             };
                             template.Add("eventArray", new[] {privateEvent});
                             foreach (var parameter in scEvent.Outputs)
                             {
                                 var privateParameter = new Parameter
                                 {
-                                    FirstCapital = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo
-                                        .ToTitleCase(
-                                            parameter.Name.ToLower()),
+                                    FirstCapital = ToUpperFirstLetter(parameter.Name),
                                     Name = parameter.Name,
                                     ParamType = parameter.Type
                                 };
@@ -162,8 +148,7 @@ namespace SCTransformation
                     {
                         var smartContractPath = path.Replace("smartcontract", smartContractDescriptor.Name.ToLower());
                         smartContractPath = smartContractPath.Replace("SmartContract",
-                            System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(
-                                smartContractDescriptor.Name.ToLower()));
+                            ToUpperFirstLetter(smartContractDescriptor.Name));
                         files.Add(new KeyValuePair<string, string>(CreateDirectory(smartContractPath, packageName),
                             Regex.Escape(
                                 $"{controllerHeader}{controllerFunctions}{controllerEvents}{controllerFooter}")));
@@ -189,9 +174,7 @@ namespace SCTransformation
             template.Add("sclAddress", smartContractDescriptor.SclAddress);
             template.Add("callbackUrl", callbackUrl);
             template.Add("contractPackageName", smartContractDescriptor.Name.ToLower());
-            template.Add("contractName",
-                System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(
-                    smartContractDescriptor.Name.ToLower()));
+            template.Add("contractName", ToUpperFirstLetter(smartContractDescriptor.Name));
             return template;
         }
 
@@ -271,6 +254,17 @@ namespace SCTransformation
         {
             public string Name;
             public string FirstCapital;
+        }
+        
+        private static string ToUpperFirstLetter(string source)
+        {
+            if (string.IsNullOrEmpty(source))
+            {
+                return string.Empty;
+            }
+            var letters = source.ToCharArray();
+            letters[0] = char.ToUpper(letters[0]);
+            return new string(letters);
         }
     }
 }

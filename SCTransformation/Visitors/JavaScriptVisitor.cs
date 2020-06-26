@@ -51,7 +51,7 @@ namespace SCTransformation.Visitors
                         JavaScript.Variables.Add(new JavaScript.Variable
                         {
                             Name = objectName,
-                            Type = type
+                            Type = type?? "string"
                         });
                     }
                 }
@@ -60,14 +60,15 @@ namespace SCTransformation.Visitors
                 {
                     var inputs = new List<JavaScript.Parameter>();
                     var outputs = new List<JavaScript.Parameter>();
-                    var eventName = string.Empty;
+                    var events = new List<string>();
+                    var hasSideEffects = false;
                     foreach (var parameterArg in statement.functionDeclaration().formalParameterList()
                         .formalParameterArg().Skip(1))
                     {
                         inputs.Add(new JavaScript.Parameter
                         {
                             Name = parameterArg.assignable()?.identifier()?.GetText(),
-                            Type = parameterArg.singleExpression()?.GetText()
+                            Type = parameterArg.singleExpression()?.GetText() ?? "string"
                         });
                     }
 
@@ -82,18 +83,21 @@ namespace SCTransformation.Visitors
                         {
                             foreach (var expression in bodyExpression)
                             {
-                                if (expression.GetText().ToLower().Contains("setevent"))
+                                var text = expression.GetText().ToLower();
+                                if (text.Contains("setevent"))
                                 {
                                     if (expression.GetChild(1)?.GetType() ==
                                         typeof(JavaScriptParser.ArgumentsContext))
                                     {
-                                        eventName = expression.GetChild(1).GetChild(1).GetText();
+                                        var eventName = expression.GetChild(1).GetChild(1).GetText();
+                                        events.Add(eventName.Substring(1, eventName.Length - 2));
                                     }
                                 }
 
-                                if (expression.GetText().ToLower().Contains("putevent"))
+                                if (text.Contains("putstate"))
                                 {
                                     JavaScript.IsStateful = true;
+                                    hasSideEffects=true;
                                 }
                             }
                         }
@@ -109,7 +113,7 @@ namespace SCTransformation.Visitors
                                 outputs.Add(new JavaScript.Parameter
                                 {
                                     Name = expression.GetText(),
-                                    Type = string.Empty
+                                    Type = "string"
                                 });
                             }
                         }
@@ -119,7 +123,8 @@ namespace SCTransformation.Visitors
                     {
                         Name = statement.functionDeclaration().identifier()?.GetText(),
                         Inputs = inputs,
-                        EventName = eventName,
+                        Events = events,
+                        HasSideEffects = hasSideEffects,
                         Outputs = outputs
                     });
                 }
@@ -135,14 +140,15 @@ namespace SCTransformation.Visitors
                         {
                             var inputs = new List<JavaScript.Parameter>();
                             var outputs = new List<JavaScript.Parameter>();
-                            var eventName = string.Empty;
+                            var events =new List<string>();
+                            var hasSideEffects = false;
                             foreach (var parameterArg in classElement.methodDefinition().formalParameterList()
                                 .formalParameterArg().Skip(1))
                             {
                                 inputs.Add(new JavaScript.Parameter
                                 {
                                     Name = parameterArg.assignable()?.identifier()?.GetText(),
-                                    Type = parameterArg.singleExpression()?.GetText()
+                                    Type = parameterArg.singleExpression()?.GetText() ?? "string"
                                 });
                             }
 
@@ -153,21 +159,24 @@ namespace SCTransformation.Visitors
                                     ?.singleExpression();
                                 if (bodyExpression != null &&
                                     bodyExpression.GetType() ==
-                                    typeof(JavaScriptParser.SingleExpressionContext))
+                                    typeof(JavaScriptParser.SingleExpressionContext[]))
                                 {
                                     foreach (var expression in bodyExpression)
                                     {
-                                        if (expression.GetText().ToLower().Contains("setevent"))
+                                        var text = expression.GetText().ToLower();
+                                        if (text.Contains("setevent"))
                                         {
                                             if (expression.GetChild(1)?.GetType() ==
                                                 typeof(JavaScriptParser.ArgumentsContext))
                                             {
-                                                eventName = expression.GetChild(1).GetChild(1).GetText();
+                                                var eventName = expression.GetChild(1).GetChild(1).GetText();
+                                                events.Add(eventName.Substring(1, eventName.Length - 2));
                                             }
                                         }
-
-                                        if (expression.GetText().ToLower().Contains("putevent"))
+                                        
+                                        if (text.Contains("putstate"))
                                         {
+                                            hasSideEffects = true;
                                             JavaScript.IsStateful = true;
                                         }
                                     }
@@ -184,7 +193,7 @@ namespace SCTransformation.Visitors
                                         outputs.Add(new JavaScript.Parameter
                                         {
                                             Name = expression?.GetText(),
-                                            Type = string.Empty
+                                            Type = "string"
                                         });
                                     }
                                 }
@@ -192,8 +201,9 @@ namespace SCTransformation.Visitors
 
                             methods.Add(new JavaScript.Function()
                             {
-                                Name = classElement.methodDefinition().propertyName().GetText(),
-                                EventName = eventName,
+                                Name = classElement.methodDefinition()?.propertyName()?.GetText(),
+                                Events = events,
+                                HasSideEffects = hasSideEffects,
                                 Inputs = inputs,
                                 Outputs = outputs
                             });

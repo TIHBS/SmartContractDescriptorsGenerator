@@ -9,6 +9,7 @@ namespace SCTransformation.Models
         public List<string> Imports { get; set; }
         public List<Contract> Contracts { get; set; }
         public BlockChainType BlockChainType { get; set; }
+
         public class Contract
         {
             public bool IsStateful { get; set; }
@@ -35,7 +36,9 @@ namespace SCTransformation.Models
             public List<Parameter> Parameters { get; set; }
             public List<Parameter> ReturnParameters { get; set; }
             public ModifierList ModifierList { get; set; }
+            public List<string> Events { get; set; }
             public Scope Scope { get; set; }
+            public bool HasSideEffects { get; set; }
         }
 
         public class Event
