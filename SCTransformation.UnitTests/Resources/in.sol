@@ -22,6 +22,8 @@ library f {}
 contract test {
     function f(uint a, uint b);
     function g(uint c);
+    event e(uint a, bytes32 s);
+    event a(uint a, bytes32 s);
 }
 contract c {
     event e(uint[10] a, bytes7[8] indexed b, c[3] x);

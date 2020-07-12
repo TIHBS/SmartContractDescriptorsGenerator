@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Antlr4.StringTemplate;
 using Newtonsoft.Json;
+using SCTransformation.Helpers;
 using SCTransformation.Models;
 
 namespace SCTransformation
@@ -15,16 +16,6 @@ namespace SCTransformation
         private static readonly string ApplicationDirectory =
             $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/client_application";
 
-        //TODO: Delete
-        public static void Main(string[] args)
-        {
-            var scds = SmartContractDescriptorGenerator.Transform(
-                File.ReadAllText(
-                    "/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/Resources/in.js"),
-                "JavaScript");
-            BuildJavaApplication(scds.First(), "com.uni.stuttgart", "callback");
-        }
-        
         private static string BuildJavaApplication(SmartContractDescriptor smartContractDescriptor,
             string packageName, string callbackUrl)
         {
@@ -113,7 +104,7 @@ namespace SCTransformation
                         {
                             var template = CreateFreshTemplate(stream, smartContractDescriptor, packageName,
                                 callbackUrl);
-                            var privateEvent= new Event
+                            var privateEvent = new Event
                             {
                                 Name = scEvent.Name,
                                 FirstCapital = ToUpperFirstLetter(scEvent.Name)
@@ -235,9 +226,17 @@ namespace SCTransformation
 
         public static string Build(string textOfFile, string packageName, string callbackUrl)
         {
-            var smartContractDescriptor = JsonConvert.DeserializeObject<SmartContractDescriptor>(textOfFile);
-            return BuildJavaApplication(smartContractDescriptor, packageName, callbackUrl);
+            try
+            {
+                var smartContractDescriptor = JsonConvert.DeserializeObject<SmartContractDescriptor>(textOfFile);
+                return BuildJavaApplication(smartContractDescriptor, packageName, callbackUrl);
+            }
+            catch (Exception)
+            {
+                return Constants.ErrorBuildingApp;
+            }
         }
+
         private class Parameter
         {
             public string Name;
@@ -250,18 +249,20 @@ namespace SCTransformation
             public string Name;
             public string FirstCapital;
         }
+
         private class Event
         {
             public string Name;
             public string FirstCapital;
         }
-        
+
         private static string ToUpperFirstLetter(string source)
         {
             if (string.IsNullOrEmpty(source))
             {
                 return string.Empty;
             }
+
             var letters = source.ToCharArray();
             letters[0] = char.ToUpper(letters[0]);
             return new string(letters);

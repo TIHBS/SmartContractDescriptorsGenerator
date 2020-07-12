@@ -25,7 +25,7 @@ namespace SCTransformation
             };
         }
 
-        public static Solidity ParseSolidity(string contents)
+        private static Solidity ParseSolidity(string contents)
         {
             var stream = new AntlrInputStream(contents);
             var lexer = new SolidityLexer(stream);
@@ -39,7 +39,7 @@ namespace SCTransformation
             return solidity;
         }
 
-        public static Go ParseGo(string contents)
+        private static Go ParseGo(string contents)
         {
             var stream = new AntlrInputStream(contents);
             var lexer = new GoLexer(stream);
@@ -53,7 +53,7 @@ namespace SCTransformation
             return go;
         }
 
-        public static JavaScript ParseJavaScript(string contents)
+        private static JavaScript ParseJavaScript(string contents)
         {
             var stream = new AntlrInputStream(contents);
             var lexer = new JavaScriptLexer(stream);
@@ -74,7 +74,7 @@ namespace SCTransformation
         /// <param name="textOfFile"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static IEnumerable<SmartContractDescriptor> Transform(string textOfFile, string type)
+        public static SmartContractDescriptor Transform(string textOfFile, string type)
         {
             return type switch
             {
@@ -99,20 +99,128 @@ namespace SCTransformation
             return builder.ToString();
         }
 
-        private static IEnumerable<SmartContractDescriptor> SolidityToScd(Solidity solidity)
+        private static SmartContractDescriptor SolidityToScd(Solidity solidity)
         {
             //TODO: description, author
-            var scdList = new List<SmartContractDescriptor>();
-            foreach (var contract in solidity.Contracts)
+            if (solidity.Contracts != null)
             {
-                var functions = new List<SmartContractDescriptor.Function>();
-                var events = new List<SmartContractDescriptor.Event>();
-                foreach (var function in contract.Functions)
+                foreach (var contract in solidity.Contracts)
+                {
+                    var functions = new List<SmartContractDescriptor.Function>();
+                    var events = new List<SmartContractDescriptor.Event>();
+                    if (contract.Functions != null)
+                    {
+                        foreach (var function in contract.Functions)
+                        {
+                            var inputs = new List<SmartContractDescriptor.Parameter>();
+                            var outputs = new List<SmartContractDescriptor.Parameter>();
+                            var functionEvents = new List<string>();
+                            foreach (var input in function.Parameters)
+                            {
+                                inputs.Add(new SmartContractDescriptor.Parameter
+                                {
+                                    Name = input.Name,
+                                    Type = input.Type,
+                                    IsIndexed = false
+                                });
+                            }
+
+                            foreach (var output in function.ReturnParameters)
+                            {
+                                outputs.Add(new SmartContractDescriptor.Parameter
+                                {
+                                    Name = output.Name,
+                                    Type = output.Type,
+                                    IsIndexed = false
+                                });
+                            }
+
+                            foreach (var functionEvent in function.Events)
+                            {
+                                functionEvents.Add(functionEvent);
+                            }
+
+                            functions.Add(new SmartContractDescriptor.Function
+                            {
+                                Name = function.Name,
+                                Description = string.Empty,
+                                Dispatcher = string.Empty,
+                                Events = functionEvents,
+                                HasSideEffects = function.HasSideEffects,
+                                Inputs = inputs,
+                                Outputs = outputs,
+                                Scope = function.Scope
+                            });
+                        }
+                    }
+
+                    if (contract.Events != null)
+                    {
+                        foreach (var contractEvent in contract.Events)
+                        {
+                            var outputs = new List<SmartContractDescriptor.Parameter>();
+                            foreach (var output in contractEvent.EventParameters)
+                            {
+                                outputs.Add(new SmartContractDescriptor.Parameter
+                                {
+                                    Name = output.Name,
+                                    Type = output.Type,
+                                    IsIndexed = output.IsIndexed
+                                });
+                            }
+
+                            events.Add(new SmartContractDescriptor.Event
+                            {
+                                Name = contractEvent.Name,
+                                Description = string.Empty,
+                                Outputs = outputs
+                            });
+                        }
+                    }
+
+                    return new SmartContractDescriptor
+                    {
+                        ScdlVersion = Constants.ScdlVersion,
+                        Name = contract.Name,
+                        Version = "1.0",
+                        LatestUrl = null,
+                        Description = contract.Name,
+                        Author = string.Empty,
+                        CreatedOn = DateTime.UtcNow,
+                        UpdatedOn = DateTime.UtcNow,
+                        LifeCycle = LifeCycle.Ready,
+                        SclAddress = null,
+                        BlockChainType = solidity.BlockChainType,
+                        BlockChainVersion = string.Empty,
+                        InternalAddress = string.Empty,
+                        MetaData = null,
+                        Hash = ComputeSha256Hash(solidity.RawFileContent),
+                        IsStateful = contract.IsStateful,
+                        ContractLanguage = Constants.Solidity,
+                        ContractLanguageVersion = solidity.Pragma,
+                        Functions = functions,
+                        Events = events
+                    };
+                }
+            }
+            return new SmartContractDescriptor();
+        }
+
+        private static SmartContractDescriptor JavaScriptToScd(JavaScript javaScript)
+        {
+            //TODO: description, author
+            var functions = new List<SmartContractDescriptor.Function>();
+            var events = new List<SmartContractDescriptor.Event>();
+            var methods = javaScript?.JavaScriptClass?.Methods;
+            if (methods != null)
+            {
+                methods.AddRange(javaScript.Functions);
+                foreach (var function in methods)
                 {
                     var inputs = new List<SmartContractDescriptor.Parameter>();
                     var outputs = new List<SmartContractDescriptor.Parameter>();
-                    var functionEvents=  new List<string>();
-                    foreach (var input in function.Parameters)
+                    var functionEvents = new List<string>();
+                    foreach (var input in function.Inputs)
                     {
                         inputs.Add(new SmartContractDescriptor.Parameter
                         {
@@ -122,7 +230,7 @@ namespace SCTransformation
                         });
                     }
 
-                    foreach (var output in function.ReturnParameters)
+                    foreach (var output in function.Outputs)
                     {
                         outputs.Add(new SmartContractDescriptor.Parameter
                         {
@@ -132,9 +240,30 @@ namespace SCTransformation
                         });
                     }
 
-                    foreach (var functionEvent in function.Events)
+                    if (function.Events.Count > 0)
                     {
-                        functionEvents.Add(functionEvent);
+                        foreach (var functionEvent in function.Events)
+                        {
+                            var eventOutputs = new List<SmartContractDescriptor.Parameter>();
+                            foreach (var output in function.Outputs)
+                            {
+                                eventOutputs.Add(new SmartContractDescriptor.Parameter
+                                {
+                                    Name = output.Name,
+                                    Type = output.Type,
+                                    IsIndexed = false
+                                });
+                            }
+
+                            functionEvents.Add(functionEvent);
+
+                            events.Add(new SmartContractDescriptor.Event
+                            {
+                                Name = functionEvent,
+                                Description = string.Empty,
+                                Outputs = eventOutputs
+                            });
+                        }
                     }
 
                     functions.Add(new SmartContractDescriptor.Function
@@ -146,228 +275,104 @@ namespace SCTransformation
                         HasSideEffects = function.HasSideEffects,
                         Inputs = inputs,
                         Outputs = outputs,
-                        Scope = function.Scope
+                        Scope = Scope.Public
                     });
                 }
+            }
 
-                foreach (var contractEvent in contract.Events)
+            return new SmartContractDescriptor
+            {
+                ScdlVersion = Constants.ScdlVersion,
+                Name = javaScript?.JavaScriptClass?.Name,
+                Version = "1.0",
+                LatestUrl = null,
+                Description = javaScript?.JavaScriptClass?.Name,
+                Author = string.Empty,
+                CreatedOn = DateTime.UtcNow,
+                UpdatedOn = DateTime.UtcNow,
+                LifeCycle = LifeCycle.Ready,
+                SclAddress = null,
+                BlockChainType = javaScript?.BlockChainType ?? BlockChainType.Ethereum,
+                BlockChainVersion = string.Empty,
+                InternalAddress = string.Empty,
+                MetaData = null,
+                Hash = ComputeSha256Hash(javaScript?.RawFileContent ?? string.Empty),
+                IsStateful = javaScript?.IsStateful ?? false,
+                ContractLanguage = Constants.JavaScript,
+                ContractLanguageVersion = string.Empty,
+                Functions = functions,
+                Events = events
+            };
+        }
+
+        private static SmartContractDescriptor GoToScd(Go go)
+        {
+            //TODO: description, author
+            var functions = new List<SmartContractDescriptor.Function>();
+            var events = new List<SmartContractDescriptor.Event>();
+            if (go?.Functions != null)
+            {
+                foreach (var function in go.Functions)
                 {
+                    var inputs = new List<SmartContractDescriptor.Parameter>();
                     var outputs = new List<SmartContractDescriptor.Parameter>();
-                    foreach (var output in contractEvent.EventParameters)
+                    foreach (var input in function.Inputs)
+                    {
+                        inputs.Add(new SmartContractDescriptor.Parameter
+                        {
+                            Name = input.Name,
+                            Type = input.Type,
+                            IsIndexed = false
+                        });
+                    }
+
+                    foreach (var output in function.Returns)
                     {
                         outputs.Add(new SmartContractDescriptor.Parameter
                         {
                             Name = output.Name,
                             Type = output.Type,
-                            IsIndexed = output.IsIndexed
+                            IsIndexed = false
                         });
                     }
 
-                    events.Add(new SmartContractDescriptor.Event
+                    functions.Add(new SmartContractDescriptor.Function
                     {
-                        Name = contractEvent.Name,
+                        Name = function.Name,
                         Description = string.Empty,
-                        Outputs = outputs
+                        Dispatcher = string.Empty,
+                        Events = new List<string>(),
+                        HasSideEffects = false,
+                        Inputs = inputs,
+                        Outputs = outputs,
+                        Scope = Scope.Public
                     });
                 }
-
-                scdList.Add(new SmartContractDescriptor
-                {
-                    ScdlVersion = Constants.ScdlVersion,
-                    Name = contract.Name,
-                    Version = "1.0",
-                    LatestUrl = null,
-                    Description = contract.Name,
-                    Author = string.Empty,
-                    CreatedOn = DateTime.UtcNow,
-                    UpdatedOn = DateTime.UtcNow,
-                    LifeCycle = LifeCycle.Ready,
-                    SclAddress = null,
-                    BlockChainType = solidity.BlockChainType,
-                    BlockChainVersion = string.Empty,
-                    InternalAddress = string.Empty,
-                    MetaData = null,
-                    Hash = ComputeSha256Hash(solidity.RawFileContent),
-                    IsStateful = contract.IsStateful,
-                    ContractLanguage = Constants.Solidity,
-                    ContractLanguageVersion = solidity.Pragma,
-                    Functions = functions,
-                    Events = events
-                });
             }
 
-            return scdList;
-        }
-
-        private static IEnumerable<SmartContractDescriptor> JavaScriptToScd(JavaScript javaScript)
-        {
-            //TODO: description, author
-            var functions = new List<SmartContractDescriptor.Function>();
-            var events = new List<SmartContractDescriptor.Event>();
-            var methods = javaScript.JavaScriptClass.Methods;
-            methods.AddRange(javaScript.Functions);
-            foreach (var function in methods)
-            {
-                var inputs = new List<SmartContractDescriptor.Parameter>();
-                var outputs = new List<SmartContractDescriptor.Parameter>();
-                var functionEvents = new List<string>();
-                foreach (var input in function.Inputs)
-                {
-                    inputs.Add(new SmartContractDescriptor.Parameter
-                    {
-                        Name = input.Name,
-                        Type = input.Type,
-                        IsIndexed = false
-                    });
-                }
-
-                foreach (var output in function.Outputs)
-                {
-                    outputs.Add(new SmartContractDescriptor.Parameter
-                    {
-                        Name = output.Name,
-                        Type = output.Type,
-                        IsIndexed = false
-                    });
-                }
-
-                if (function.Events.Count > 0)
-                {
-                    foreach (var functionEvent in function.Events)
-                    {
-                        var eventOutputs = new List<SmartContractDescriptor.Parameter>();
-                        foreach (var output in function.Outputs)
-                        {
-                            eventOutputs.Add(new SmartContractDescriptor.Parameter
-                            {
-                                Name = output.Name,
-                                Type = output.Type,
-                                IsIndexed = false
-                            });
-                        }
-
-                        functionEvents.Add(functionEvent);
-
-                        events.Add(new SmartContractDescriptor.Event
-                        {
-                            Name = functionEvent,
-                            Description = string.Empty,
-                            Outputs = eventOutputs
-                        });
-                    }
-                }
-
-                functions.Add(new SmartContractDescriptor.Function
-                {
-                    Name = function.Name,
-                    Description = string.Empty,
-                    Dispatcher = string.Empty,
-                    Events = functionEvents,
-                    HasSideEffects = function.HasSideEffects,
-                    Inputs = inputs,
-                    Outputs = outputs,
-                    Scope = Scope.Public
-                });
-            }
-
-            var scdList = new List<SmartContractDescriptor>
-            {
-                new SmartContractDescriptor
+            return new SmartContractDescriptor
                 {
                     ScdlVersion = Constants.ScdlVersion,
-                    Name = javaScript.JavaScriptClass.Name,
+                    Name = go?.PackageName,
                     Version = "1.0",
                     LatestUrl = null,
-                    Description = javaScript.JavaScriptClass.Name,
-                    Author = string.Empty,
-                    CreatedOn = DateTime.UtcNow,
-                    UpdatedOn = DateTime.UtcNow,
-                    LifeCycle = LifeCycle.Ready,
-                    SclAddress = null,
-                    BlockChainType = javaScript.BlockChainType,
-                    BlockChainVersion = string.Empty,
-                    InternalAddress = string.Empty,
-                    MetaData = null,
-                    Hash = ComputeSha256Hash(javaScript.RawFileContent),
-                    IsStateful = javaScript.IsStateful,
-                    ContractLanguage = Constants.JavaScript,
-                    ContractLanguageVersion = string.Empty,
-                    Functions = functions,
-                    Events = events
-                }
-            };
-            return scdList;
-        }
-
-        private static IEnumerable<SmartContractDescriptor> GoToScd(Go go)
-        {
-            //TODO: description, author
-            var functions = new List<SmartContractDescriptor.Function>();
-            var events = new List<SmartContractDescriptor.Event>();
-            foreach (var function in go.Functions)
-            {
-                var inputs = new List<SmartContractDescriptor.Parameter>();
-                var outputs = new List<SmartContractDescriptor.Parameter>();
-                foreach (var input in function.Inputs)
-                {
-                    inputs.Add(new SmartContractDescriptor.Parameter
-                    {
-                        Name = input.Name,
-                        Type = input.Type,
-                        IsIndexed = false
-                    });
-                }
-
-                foreach (var output in function.Returns)
-                {
-                    outputs.Add(new SmartContractDescriptor.Parameter
-                    {
-                        Name = output.Name,
-                        Type = output.Type,
-                        IsIndexed = false
-                    });
-                }
-
-                functions.Add(new SmartContractDescriptor.Function
-                {
-                    Name = function.Name,
-                    Description = string.Empty,
-                    Dispatcher = string.Empty,
-                    Events = new List<string>(),
-                    HasSideEffects = false,
-                    Inputs = inputs,
-                    Outputs = outputs,
-                    Scope = Scope.Public
-                });
-            }
-
-            var scdList = new List<SmartContractDescriptor>
-            {
-                new SmartContractDescriptor
-                {
-                    ScdlVersion = Constants.ScdlVersion,
-                    Name = go.PackageName,
-                    Version = "1.0",
-                    LatestUrl = null,
-                    Description = go.PackageName,
+                    Description = go?.PackageName,
                     Author = string.Empty,
                     CreatedOn = DateTime.Now,
                     UpdatedOn = DateTime.Now,
                     LifeCycle = LifeCycle.Ready,
                     SclAddress = null,
-                    BlockChainType = go.BlockChainType,
+                    BlockChainType = go?.BlockChainType?? BlockChainType.Ethereum,
                     BlockChainVersion = string.Empty,
                     InternalAddress = string.Empty,
                     MetaData = null,
-                    Hash = ComputeSha256Hash(go.RawFileContent),
+                    Hash = ComputeSha256Hash(go?.RawFileContent??string.Empty),
                     IsStateful = false,
                     ContractLanguage = Constants.Go,
                     ContractLanguageVersion = string.Empty,
                     Functions = functions,
                     Events = events
-                }
-            };
-            return scdList;
+                };
         }
     }
 }

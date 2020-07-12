@@ -6,8 +6,6 @@
         public const string Solidity = "Solidity";
         public const string Go = "Go";
         public const string JavaScript = "JavaScript";
-        public const string SolidityInPath = "SCTransformation/Resources/in.sol";
-        public const string JavaScriptPath = "SCTransformation/Resources/in.js";
-        public const string GoPath = "SCTransformation/Resources/in.go";
+        public const string ErrorBuildingApp = "Error building client application. Check inputs!";
     }
 }
