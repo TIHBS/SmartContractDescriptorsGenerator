@@ -89,7 +89,13 @@ namespace SCTransformation
 
                             foreach (var parameter in function.Outputs)
                             {
-                                template.Add("outputparameterarray", new[] {parameter});
+                                var privateParameter = new Parameter
+                                {
+                                    FirstCapital = ToUpperFirstLetter(parameter.Name),
+                                    Name = parameter.Name,
+                                    ParamType = parameter.Type
+                                };
+                                template.Add("outputparameterarray", new[] {privateParameter});
                             }
 
                             controllerFunctions += template.Render();

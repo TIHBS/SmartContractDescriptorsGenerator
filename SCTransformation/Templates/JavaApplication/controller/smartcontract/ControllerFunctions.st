@@ -6,7 +6,7 @@
             €inputparameterarray:{it|{add(Parameter.builder().name("€it.Name€").type("{\"type\": \"€it.ParamType€\"\}").value(parameter.get€it.FirstCapital€()).build());\}};separator="\n"€
        \};
        List<Parameter> outputParameters = new ArrayList<Parameter>(){
-            €outputparameterarray:{it|{add(new Parameter().builder().name("€it.name€").type("{\"type\": \"€it.type€\"\}").build());\}};separator="\n"€
+            €outputparameterarray:{it|{add(new Parameter().builder().name("€it.Name€").type("{\"type\": \"€it.ParamType€\"\}").build());\}};separator="\n"€
        \};
        return scipClientFunctions.performInvoke("€function.Name€",inputParameters,outputParameters,parameter.getDegreeOfConfidence()).get();
     \}
