@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Xunit;
 using SCTransformation.Models;
 
@@ -8,6 +9,19 @@ namespace SCTransformation.UnitTests
 {
     public class ScdGeneratorTests
     {
+        private Assembly _assembly;
+        private string _solidityResourceName;
+        private string _javaScriptResourceName;
+        private string _goResourceName;
+
+        public ScdGeneratorTests()
+        {
+            _assembly = Assembly.GetExecutingAssembly();
+            _solidityResourceName = "SCTransformation.UnitTests.Resources.in.sol";
+            _javaScriptResourceName = "SCTransformation.UnitTests.Resources.in.js";
+            _goResourceName = "SCTransformation.UnitTests.Resources.in.go";
+        }
+
         [Fact]
         public void TestTransformJavaScriptEqual()
         {
@@ -70,8 +84,8 @@ namespace SCTransformation.UnitTests
                 }
             };
 
-            var test = SmartContractDescriptorGenerator.Transform(File.ReadAllText(
-                    Constants.JavaScriptPath),
+            var test = SmartContractDescriptorGenerator.Transform(
+                new StreamReader(_assembly.GetManifestResourceStream(_javaScriptResourceName)!).ReadToEnd(),
                 "JavaScript");
 
             Assert.NotNull(test);
@@ -183,8 +197,8 @@ namespace SCTransformation.UnitTests
                 }
             };
 
-            var test = SmartContractDescriptorGenerator.Transform(File.ReadAllText(
-                    Constants.SolidityInPath),
+            var test = SmartContractDescriptorGenerator.Transform(
+                new StreamReader(_assembly.GetManifestResourceStream(_solidityResourceName)!).ReadToEnd(),
                 "Solidity");
 
             Assert.NotNull(test);
@@ -253,8 +267,8 @@ namespace SCTransformation.UnitTests
                 }
             };
 
-            var test = SmartContractDescriptorGenerator.Transform(File.ReadAllText(
-                Constants.GoPath), "Go");
+            var test = SmartContractDescriptorGenerator.Transform(
+                new StreamReader(_assembly.GetManifestResourceStream(_goResourceName)!).ReadToEnd(), "Go");
 
             Assert.NotNull(test);
             Assert.Equal(smartContractDescriptor.Name, test.Name);

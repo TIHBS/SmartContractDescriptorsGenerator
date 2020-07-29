@@ -18,4 +18,13 @@
       <ProjectReference Include="..\SCTransformation\SCTransformation.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Resources\in.go" />
+      <EmbeddedResource Include="Resources\in.go" />
+      <None Remove="Resources\in.js" />
+      <EmbeddedResource Include="Resources\in.js" />
+      <None Remove="Resources\in.sol" />
+      <EmbeddedResource Include="Resources\in.sol" />
+    </ItemGroup>
+
 </Project>
