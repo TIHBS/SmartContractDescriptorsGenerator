@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/Grammars/JavaScript/JavaScriptLexerBase.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Antlr4.Runtime;
+using System.Collections.Generic;
+using static SCTransformation.Grammars.JavaScript.JavaScriptParser;
+
+/// &lt;summary&gt;
+/// All lexer methods that used in grammar (IsStrictMode)
+/// should start with Upper Case Char similar to Lexer rules.
+/// &lt;/summary&gt;
+public abstract class JavaScriptLexerBase : Lexer
+{
+    /// &lt;summary&gt;
+    /// Stores values of nested modes. By default mode is strict or
+    /// defined externally(useStrictDefault)
+    /// &lt;/summary&gt;
+    private Stack&lt;bool&gt; scopeStrictModes = new Stack&lt;bool&gt;();
+
+    private IToken _lastToken = null;
+
+    /// &lt;summary&gt;
+    /// Default value of strict mode
+    /// Can be defined externally by changing UseStrictDefault
+    /// &lt;/summary&gt;
+    private bool _useStrictDefault = false;
+
+    /// &lt;summary&gt;
+    /// Current value of strict mode
+    /// Can be defined during parsing, see StringFunctions.js and StringGlobal.js samples
+    /// &lt;/summary&gt;
+    private bool _useStrictCurrent = false;
+
+    public JavaScriptLexerBase(ICharStream input)
+        : base(input)
+    {
+    }
+
+    public bool IsStartOfFile(){
+        return _lastToken == null;
+    }
+
+    public bool UseStrictDefault
+    {
+        get
+        {
+            return _useStrictDefault;
+        }
+        set
+        {
+            _useStrictDefault = value;
+            _useStrictCurrent = value;
+        }
+    }
+
+    public bool IsStrictMode()
+    {
+        return _useStrictCurrent;
+    }
+
+    /// &lt;summary&gt;
+    /// Return the next token from the character stream and records this last
+    /// token in case it resides on the default channel. This recorded token
+    /// is used to determine when the lexer could possibly match a regex
+    /// literal.
+    /// 
+    /// &lt;/summary&gt;
+    /// &lt;returns&gt;
+    /// The next token from the character stream.
+    /// &lt;/returns&gt;
+    public override IToken NextToken()
+    {
+        // Get the next token.
+        IToken next = base.NextToken();
+
+        if (next.Channel == DefaultTokenChannel)
+        {
+            // Keep track of the last token on the default channel.
+            _lastToken = next;
+        }
+
+        return next;
+    }
+
+    protected void ProcessOpenBrace()
+    {
+        _useStrictCurrent = scopeStrictModes.Count &gt; 0 &amp;&amp; scopeStrictModes.Peek() ? true : UseStrictDefault;
+        scopeStrictModes.Push(_useStrictCurrent);
+    }
+
+    protected void ProcessCloseBrace()
+    {
+        _useStrictCurrent = scopeStrictModes.Count &gt; 0 ? scopeStrictModes.Pop() : UseStrictDefault;
+    }
+
+    protected void ProcessStringLiteral()
+    {
+        if (_lastToken == null || _lastToken.Type == OpenBrace)
+        {
+            if (Text.Equals(&quot;\&quot;use strict\&quot;&quot;) || Text.Equals(&quot;&#39;use strict&#39;&quot;))
+            {
+                if (scopeStrictModes.Count &gt; 0)
+                    scopeStrictModes.Pop();
+                _useStrictCurrent = true;
+                scopeStrictModes.Push(_useStrictCurrent);
+            }
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// Returns true if the lexer can match a regex literal.
+    /// &lt;/summary&gt;
+    protected bool IsRegexPossible()
+    {
+        if (_lastToken == null)
+        {
+            // No token has been produced yet: at the start of the input,
+            // no division is possible, so a regex literal _is_ possible.
+            return true;
+        }
+
+        switch (_lastToken.Type)
+        {
+            case Identifier:
+            case NullLiteral:
+            case BooleanLiteral:
+            case This:
+            case CloseBracket:
+            case CloseParen:
+            case OctalIntegerLiteral:
+            case DecimalLiteral:
+            case HexIntegerLiteral:
+            case StringLiteral:
+            case PlusPlus:
+            case MinusMinus:
+                // After any of the tokens above, no regex literal can follow.
+                return false;
+            default:
+                // In all other cases, a regex literal _is_ possible.
+                return true;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,5,15,62,1],[32,11,32,22,1],[34,5,34,6,1],[37,9,37,35,1],[44,13,44,38,0],[48,13,48,39,0],[49,13,49,39,0],[50,9,50,10,0],[55,9,55,34,1],[71,9,71,40,1],[73,9,73,49,1],[76,13,76,31,1],[79,9,79,21,1],[84,9,84,109,1],[85,9,85,50,1],[86,5,86,6,1],[90,9,90,100,1],[91,5,91,6,1],[95,9,95,64,1],[97,13,97,78,1],[99,17,99,48,1],[100,21,100,44,0],[101,17,101,42,1],[102,17,102,58,1],[105,5,105,6,1],[112,9,112,32,0],[116,13,116,25,0],[119,9,119,33,0],[134,17,134,30,0],[137,17,137,29,0]]);
+    </script>
+  </body>
+</html>

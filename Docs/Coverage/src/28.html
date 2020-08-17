@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/Grammars/Go/GoParserBase.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Antlr4.Runtime;
+using static SCTransformation.Grammars.Go.GoLexer;
+
+namespace SCTransformation.Grammars.Go
+{
+    public abstract class GoParserBase : Parser
+    {
+        protected GoParserBase(ITokenStream input)
+            : base(input)
+        {
+        }
+
+#if ANTLR_STANDARD
+        protected GoParserBase(ITokenStream input, TextWriter output, TextWriter errorOutput)
+            : base(input, output, errorOutput)
+        {
+        }
+#endif
+
+        /// &lt;summary&gt;
+        /// Returns `true` if on the current index of the parser&#39;s
+        /// token stream a token exists on the `HIDDEN` channel which
+        /// either is a line terminator, or is a multi line comment that
+        /// contains a line terminator.
+        /// &lt;/summary&gt;
+        protected bool lineTerminatorAhead()
+        {
+            // Get the token ahead of the current index.
+            int possibleIndexEosToken = CurrentToken.TokenIndex - 1;
+
+            if (possibleIndexEosToken == -1)
+            {
+                return true;
+            }
+
+            IToken ahead = tokenStream.Get(possibleIndexEosToken);
+            if (ahead.Channel != Lexer.Hidden)
+            {
+                // We&#39;re only interested in tokens on the HIDDEN channel.
+                return false;
+            }
+
+            if (ahead.Type == TERMINATOR)
+            {
+                // There is definitely a line terminator ahead.
+                return true;
+            }
+
+            if (ahead.Type == WS)
+            {
+                // Get the token ahead of the current whitespaces.
+                possibleIndexEosToken = CurrentToken.TokenIndex - 2;
+
+                if (possibleIndexEosToken == -1)
+                {
+                    return true;
+                }
+
+                ahead = tokenStream.Get(possibleIndexEosToken);
+            }
+
+            // Get the token&#39;s text and type.
+            String text = ahead.Text;
+            int type = ahead.Type;
+
+            // Check if the token is, or contains a line terminator.
+            return type == COMMENT &amp;&amp; (text.Contains(&quot;\r&quot;) || text.Contains(&quot;\n&quot;)) ||
+                   type == TERMINATOR;
+        }
+
+        /// &lt;summary&gt;
+        /// Returns `true` if no line terminator exists between the specified
+        /// token offset and the prior one on the `HIDDEN` channel.
+        /// &lt;/summary&gt;
+        protected bool noTerminatorBetween(int tokenOffset)
+        {
+            BufferedTokenStream stream = (BufferedTokenStream)tokenStream;
+            IList&lt;IToken&gt; tokens = stream.GetHiddenTokensToLeft(LT(stream, tokenOffset).TokenIndex);
+
+            if (tokens == null)
+            {
+                return true;
+            }
+
+            foreach (IToken token in tokens)
+            {
+                if (token.Text.Contains(&quot;\n&quot;))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// &lt;summary&gt;
+        /// Returns `true` if no line terminator exists after any encountered
+        /// parameters beyond the specified token offset and the next on the
+        /// `HIDDEN` channel.
+        /// &lt;/summary&gt;
+        protected bool noTerminatorAfterParams(int tokenOffset)
+        {
+            BufferedTokenStream stream = (BufferedTokenStream)tokenStream;
+            int leftParams = 1;
+            int rightParams = 0;
+
+            if (LT(stream, tokenOffset).Type == L_PAREN)
+            {
+                // Scan past parameters
+                while (leftParams != rightParams)
+                {
+                    tokenOffset++;
+                    int tokenType = LT(stream, tokenOffset).Type;
+
+                    if (tokenType == L_PAREN)
+                    {
+                        leftParams++;
+                    }
+                    else if (tokenType == R_PAREN)
+                    {
+                        rightParams++;
+                    }
+                }
+
+                tokenOffset++;
+                return noTerminatorBetween(tokenOffset);
+            }
+
+            return true;
+        }
+
+        protected bool checkPreviousTokenText(string text)
+        {
+            return LT(tokenStream, 1).Text?.Equals(text) ?? false;
+        }
+
+        private IToken LT(ITokenStream stream, int k)
+        {
+#if ANTLR_STANDARD
+            return stream.LT(k);
+#else
+            return stream.Lt(k);
+#endif
+        }
+
+        private ITokenStream tokenStream
+        {
+            get
+            {
+#if ANTLR_STANDARD
+                return TokenStream;
+#else
+                return _input;
+#endif
+            }
+        }
+    }
+}
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,15,12,26,1],[14,9,14,10,1],[32,13,32,69,1],[34,13,34,45,1],[36,17,36,29,1],[39,13,39,67,1],[40,13,40,47,1],[43,17,43,30,1],[46,13,46,42,1],[49,17,49,29,1],[52,13,52,34,1],[55,17,55,69,1],[57,17,57,49,1],[59,21,59,33,0],[62,17,62,64,1],[66,13,66,38,1],[67,13,67,35,1],[70,13,71,39,1],[80,13,80,75,1],[81,13,81,101,1],[83,13,83,32,1],[85,17,85,29,0],[88,22,88,34,1],[88,35,88,37,1],[88,38,88,44,1],[90,17,90,47,1],[91,21,91,34,1],[94,13,94,25,1],[95,9,95,10,1],[104,13,104,75,1],[105,13,105,32,1],[106,13,106,33,1],[108,13,108,57,1],[111,17,111,50,1],[113,21,113,35,1],[114,21,114,66,1],[116,21,116,46,1],[118,25,118,38,0],[119,21,119,22,0],[120,26,120,51,1],[122,25,122,39,1],[126,17,126,31,1],[127,17,127,57,1],[130,13,130,25,0],[135,13,135,67,1],[143,13,143,33,1],[154,17,154,31,1]]);
+    </script>
+  </body>
+</html>

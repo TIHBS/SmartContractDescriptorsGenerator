@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation.UnitTests/ScdGeneratorTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using Xunit;
+using SCTransformation.Models;
+
+namespace SCTransformation.UnitTests
+{
+    public class ScdGeneratorTests
+    {
+        private Assembly _assembly;
+        private string _solidityResourceName;
+        private string _javaScriptResourceName;
+        private string _goResourceName;
+
+        public ScdGeneratorTests()
+        {
+            _assembly = Assembly.GetExecutingAssembly();
+            _solidityResourceName = &quot;SCTransformation.UnitTests.Resources.in.sol&quot;;
+            _javaScriptResourceName = &quot;SCTransformation.UnitTests.Resources.in.js&quot;;
+            _goResourceName = &quot;SCTransformation.UnitTests.Resources.in.go&quot;;
+        }
+
+        [Fact]
+        public void TestTransformJavaScriptEqual()
+        {
+            var smartContractDescriptor = new SmartContractDescriptor
+            {
+                Name = &quot;diary&quot;,
+                Functions = new List&lt;SmartContractDescriptor.Function&gt;
+                {
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;registerMilkBatch&quot;
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;transportMilkBatch&quot;
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;registerMilkCarton&quot;,
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;transportCarton&quot;,
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;registerCartonInInventory&quot;,
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;registerSelling&quot;
+                    }
+                },
+                Events = new List&lt;SmartContractDescriptor.Event&gt;
+                {
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;milkBatchRegistered&quot;,
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;milkBatchTransported&quot;,
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;cartonRegistered&quot;,
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;cartonTransported&quot;,
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;cartonRegisteredInInventory&quot;,
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;cartonSold&quot;,
+                    }
+                }
+            };
+
+            var test = SmartContractDescriptorGenerator.Transform(
+                new StreamReader(_assembly.GetManifestResourceStream(_javaScriptResourceName)!).ReadToEnd(),
+                &quot;JavaScript&quot;);
+
+            Assert.NotNull(test);
+            Assert.Equal(smartContractDescriptor.Name, test.Name);
+            Assert.Equal(smartContractDescriptor.Functions.First().Name, test.Functions.First().Name);
+            Assert.Equal(smartContractDescriptor.Functions.Last().Name, test.Functions.Last().Name);
+            Assert.Equal(smartContractDescriptor.Events.First().Name, test.Events.First().Name);
+            Assert.Equal(smartContractDescriptor.Events.Last().Name, test.Events.Last().Name);
+        }
+
+        [Fact]
+        public void TestTransformJavaScriptNotEqual()
+        {
+            var smartContractDescriptor = new SmartContractDescriptor
+            {
+                Name = &quot;diary&quot;,
+                Functions = new List&lt;SmartContractDescriptor.Function&gt;
+                {
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;registerMilkBatch&quot;
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;transportMilkBatch&quot;
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;registerMilkCarton&quot;,
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;transportCarton&quot;,
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;registerCartonInInventory&quot;,
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;registerSelling&quot;
+                    }
+                },
+                Events = new List&lt;SmartContractDescriptor.Event&gt;
+                {
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;milkBatchRegistered&quot;,
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;milkBatchTransported&quot;,
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;cartonRegistered&quot;,
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;cartonTransported&quot;,
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;cartonRegisteredInInventory&quot;,
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;cartonSold&quot;,
+                    }
+                }
+            };
+
+            var test = SmartContractDescriptorGenerator.Transform(&quot;&quot;,
+                &quot;JavaScript&quot;);
+
+            Assert.NotNull(test);
+            Assert.NotEqual(smartContractDescriptor.Name, test.Name);
+            Assert.NotNull(test.Functions);
+            Assert.NotNull(test.Events);
+        }
+
+        [Fact]
+        public void TestTransformSolidityEqual()
+        {
+            var smartContractDescriptor = new SmartContractDescriptor
+            {
+                Name = &quot;test&quot;,
+                Functions = new List&lt;SmartContractDescriptor.Function&gt;
+                {
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;f&quot;
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;g&quot;
+                    }
+                },
+                Events = new List&lt;SmartContractDescriptor.Event&gt;
+                {
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;e&quot;
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;a&quot;
+                    }
+                }
+            };
+
+            var test = SmartContractDescriptorGenerator.Transform(
+                new StreamReader(_assembly.GetManifestResourceStream(_solidityResourceName)!).ReadToEnd(),
+                &quot;Solidity&quot;);
+
+            Assert.NotNull(test);
+            Assert.Equal(smartContractDescriptor.Name, test.Name);
+            Assert.Equal(smartContractDescriptor.Functions.First().Name, test.Functions.First().Name);
+            Assert.Equal(smartContractDescriptor.Functions.Last().Name, test.Functions.Last().Name);
+            Assert.Equal(smartContractDescriptor.Events.First().Name, test.Events.First().Name);
+            Assert.Equal(smartContractDescriptor.Events.Last().Name, test.Events.Last().Name);
+        }
+
+        [Fact]
+        public void TestTransformSolidityNotEqual()
+        {
+            var smartContractDescriptor = new SmartContractDescriptor
+            {
+                Name = &quot;test&quot;,
+                Functions = new List&lt;SmartContractDescriptor.Function&gt;
+                {
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;f&quot;
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;g&quot;
+                    }
+                },
+                Events = new List&lt;SmartContractDescriptor.Event&gt;
+                {
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;e&quot;
+                    },
+                    new SmartContractDescriptor.Event
+                    {
+                        Name = &quot;a&quot;
+                    }
+                }
+            };
+
+            var test = SmartContractDescriptorGenerator.Transform(&quot;&quot;,
+                &quot;Solidity&quot;);
+
+            Assert.NotNull(test);
+            Assert.NotEqual(smartContractDescriptor.Name, test.Name);
+            Assert.Null(test.Functions);
+            Assert.Null(test.Events);
+        }
+
+        [Fact]
+        public void TestTransformGoEqual()
+        {
+            var smartContractDescriptor = new SmartContractDescriptor
+            {
+                Name = &quot;main&quot;,
+                Functions = new List&lt;SmartContractDescriptor.Function&gt;
+                {
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;DeployWinnerTakesAll&quot;
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;bindWinnerTakesAll&quot;
+                    }
+                }
+            };
+
+            var test = SmartContractDescriptorGenerator.Transform(
+                new StreamReader(_assembly.GetManifestResourceStream(_goResourceName)!).ReadToEnd(), &quot;Go&quot;);
+
+            Assert.NotNull(test);
+            Assert.Equal(smartContractDescriptor.Name, test.Name);
+            Assert.Equal(smartContractDescriptor.Functions.First().Name, test.Functions.First().Name);
+            Assert.Equal(smartContractDescriptor.Functions.Last().Name, test.Functions.Last().Name);
+        }
+
+        [Fact]
+        public void TestTransformGoNotEqual()
+        {
+            var smartContractDescriptor = new SmartContractDescriptor
+            {
+                Name = &quot;main&quot;,
+                Functions = new List&lt;SmartContractDescriptor.Function&gt;
+                {
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;DeployWinnerTakesAll&quot;
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;WatchProjectSupported&quot;
+                    }
+                }
+            };
+
+            var test = SmartContractDescriptorGenerator.Transform(&quot;&quot;, &quot;Go&quot;);
+
+            Assert.NotNull(test);
+            Assert.NotEqual(smartContractDescriptor.Name, test.Name);
+            Assert.NotNull(test.Functions);
+            Assert.NotNull(test.Events);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[17,9,17,35,1],[19,13,19,57,1],[20,13,20,83,1],[21,13,21,84,1],[22,13,22,76,1],[23,9,23,10,1],[28,13,85,15,1],[87,13,89,31,1],[91,13,91,34,1],[92,13,92,67,1],[93,13,93,103,1],[94,13,94,101,1],[95,13,95,97,1],[96,13,96,95,1],[97,9,97,10,1],[102,13,159,15,1],[161,13,162,31,1],[164,13,164,34,1],[165,13,165,70,1],[166,13,166,44,1],[167,13,167,41,1],[168,9,168,10,1],[173,13,198,15,1],[200,13,202,29,1],[204,13,204,34,1],[205,13,205,67,1],[206,13,206,103,1],[207,13,207,101,1],[208,13,208,97,1],[209,13,209,95,1],[210,9,210,10,1],[215,13,240,15,1],[242,13,243,29,1],[245,13,245,34,1],[246,13,246,70,1],[247,13,247,41,1],[248,13,248,38,1],[249,9,249,10,1],[254,13,268,15,1],[270,13,271,108,1],[273,13,273,34,1],[274,13,274,67,1],[275,13,275,103,1],[276,13,276,101,1],[277,9,277,10,1],[282,13,296,15,1],[298,13,298,77,1],[300,13,300,34,1],[301,13,301,70,1],[302,13,302,44,1],[303,13,303,41,1],[304,9,304,10,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/Visitors/JavaScriptVisitor.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Collections.Generic;
+using System.Linq;
+using SCTransformation.Grammars.JavaScript;
+using SCTransformation.Models;
+
+namespace SCTransformation.Visitors
+{
+    public class JavaScriptVisitor : JavaScriptParserBaseVisitor&lt;object&gt;
+    {
+        public JavaScript JavaScript { get; }
+
+        public JavaScriptVisitor()
+        {
+            JavaScript = new JavaScript
+            {
+                Imports = new List&lt;string&gt;(),
+                Exports = new List&lt;string&gt;(),
+                Variables = new List&lt;JavaScript.Variable&gt;(),
+                Functions = new List&lt;JavaScript.Function&gt;()
+            };
+        }
+
+        public override object VisitProgram(JavaScriptParser.ProgramContext context)
+        {
+            if (context?.sourceElements()?.sourceElement() != null)
+            {
+                JavaScript.BlockChainType = GetBlockChainType(context);
+                var sourceElements = context.sourceElements().sourceElement();
+                foreach (var sourceElement in sourceElements)
+                {
+                    var statement = sourceElement.statement();
+                    if (statement?.importStatement() != null &amp;&amp;
+                        statement.importStatement().GetType() ==
+                        typeof(JavaScriptParser.ImportStatementContext))
+                    {
+                        var import = statement.importStatement().importFromBlock().importFrom().GetText();
+                        JavaScript.Imports.Add(import);
+                    }
+                    else if (statement?.exportStatement() != null &amp;&amp; statement.exportStatement().GetType() ==
+                        typeof(JavaScriptParser.ExportStatementContext))
+                    {
+                        var export = statement.exportStatement().GetText();
+                        JavaScript.Exports.Add(export);
+                    }
+                    else if (statement?.variableStatement() != null &amp;&amp; statement.variableStatement().GetType() ==
+                        typeof(JavaScriptParser.VariableStatementContext))
+                    {
+                        foreach (var variable in statement.variableStatement().variableDeclarationList()
+                            .variableDeclaration())
+                        {
+                            var type = statement.variableStatement().variableDeclarationList()?.varModifier()
+                                ?.GetText();
+                            var objectName = variable.assignable()?.objectLiteral()?.propertyAssignment(0)?.GetText();
+                            JavaScript.Variables.Add(new JavaScript.Variable
+                            {
+                                Name = objectName,
+                                Type = type ?? &quot;string&quot;
+                            });
+                        }
+                    }
+                    else if (statement?.functionDeclaration() != null &amp;&amp; statement.functionDeclaration().GetType() ==
+                        typeof(JavaScriptParser.FunctionDeclarationContext))
+                    {
+                        var inputs = new List&lt;JavaScript.Parameter&gt;();
+                        var outputs = new List&lt;JavaScript.Parameter&gt;();
+                        var events = new List&lt;string&gt;();
+                        var hasSideEffects = false;
+                        foreach (var parameterArg in statement.functionDeclaration().formalParameterList()
+                            .formalParameterArg().Skip(1))
+                        {
+                            inputs.Add(new JavaScript.Parameter
+                            {
+                                Name = parameterArg.assignable()?.identifier()?.GetText(),
+                                Type = parameterArg.singleExpression()?.GetText() ?? &quot;string&quot;
+                            });
+                        }
+
+                        foreach (var body in statement.functionDeclaration().functionBody().sourceElements()
+                            .sourceElement())
+                        {
+                            var bodyExpression = body.statement()?.expressionStatement()?.expressionSequence()
+                                ?.singleExpression();
+                            if (bodyExpression != null &amp;&amp;
+                                bodyExpression.GetType() ==
+                                typeof(JavaScriptParser.SingleExpressionContext))
+                            {
+                                foreach (var expression in bodyExpression)
+                                {
+                                    var text = expression.GetText().ToLower();
+                                    if (text.Contains(&quot;setevent&quot;))
+                                    {
+                                        if (expression.GetChild(1)?.GetType() ==
+                                            typeof(JavaScriptParser.ArgumentsContext))
+                                        {
+                                            var eventName = expression.GetChild(1).GetChild(1).GetText();
+                                            events.Add(eventName.Substring(1, eventName.Length - 2));
+                                        }
+                                    }
+
+                                    if (text.Contains(&quot;putstate&quot;))
+                                    {
+                                        JavaScript.IsStateful = true;
+                                        hasSideEffects = true;
+                                    }
+                                }
+                            }
+
+                            var returnExpression = body.statement()?.returnStatement()?.expressionSequence()
+                                ?.singleExpression();
+                            if (returnExpression != null &amp;&amp;
+                                returnExpression.GetType() ==
+                                typeof(JavaScriptParser.SingleExpressionContext))
+                            {
+                                foreach (var expression in returnExpression)
+                                {
+                                    outputs.Add(new JavaScript.Parameter
+                                    {
+                                        Name = expression.GetText(),
+                                        Type = &quot;string&quot;
+                                    });
+                                }
+                            }
+                        }
+
+                        JavaScript.Functions.Add(new JavaScript.Function
+                        {
+                            Name = statement.functionDeclaration().identifier()?.GetText(),
+                            Inputs = inputs,
+                            Events = events,
+                            HasSideEffects = hasSideEffects,
+                            Outputs = outputs
+                        });
+                    }
+                    else if (statement?.classDeclaration() != null &amp;&amp; statement.classDeclaration().GetType() ==
+                        typeof(JavaScriptParser.ClassDeclarationContext))
+                    {
+                        var methods = new List&lt;JavaScript.Function&gt;();
+
+                        foreach (var classElement in statement.classDeclaration().classTail().classElement())
+                        {
+                            if (classElement.methodDefinition() != null &amp;&amp; classElement.methodDefinition().GetType() ==
+                                typeof(JavaScriptParser.MethodDefinitionContext))
+                            {
+                                var inputs = new List&lt;JavaScript.Parameter&gt;();
+                                var outputs = new List&lt;JavaScript.Parameter&gt;();
+                                var events = new List&lt;string&gt;();
+                                var hasSideEffects = false;
+                                foreach (var parameterArg in classElement.methodDefinition().formalParameterList()
+                                    .formalParameterArg().Skip(1))
+                                {
+                                    inputs.Add(new JavaScript.Parameter
+                                    {
+                                        Name = parameterArg.assignable()?.identifier()?.GetText(),
+                                        Type = parameterArg.singleExpression()?.GetText() ?? &quot;string&quot;
+                                    });
+                                }
+
+                                foreach (var body in classElement.methodDefinition().functionBody().sourceElements()
+                                    .sourceElement())
+                                {
+                                    var bodyExpression = body.statement()?.expressionStatement()?.expressionSequence()
+                                        ?.singleExpression();
+                                    if (bodyExpression != null &amp;&amp;
+                                        bodyExpression.GetType() ==
+                                        typeof(JavaScriptParser.SingleExpressionContext[]))
+                                    {
+                                        foreach (var expression in bodyExpression)
+                                        {
+                                            var text = expression.GetText().ToLower();
+                                            if (text.Contains(&quot;setevent&quot;))
+                                            {
+                                                if (expression.GetChild(1)?.GetType() ==
+                                                    typeof(JavaScriptParser.ArgumentsContext))
+                                                {
+                                                    var eventName = expression.GetChild(1).GetChild(1).GetText();
+                                                    events.Add(eventName.Substring(1, eventName.Length - 2));
+                                                }
+                                            }
+
+                                            if (text.Contains(&quot;putstate&quot;))
+                                            {
+                                                hasSideEffects = true;
+                                                JavaScript.IsStateful = true;
+                                            }
+                                        }
+                                    }
+
+                                    var returnExpression = body.statement()?.returnStatement()?.expressionSequence()
+                                        ?.singleExpression();
+                                    if (returnExpression != null &amp;&amp;
+                                        returnExpression.GetType() ==
+                                        typeof(JavaScriptParser.SingleExpressionContext))
+                                    {
+                                        foreach (var expression in returnExpression)
+                                        {
+                                            outputs.Add(new JavaScript.Parameter
+                                            {
+                                                Name = expression?.GetText(),
+                                                Type = &quot;string&quot;
+                                            });
+                                        }
+                                    }
+                                }
+
+                                methods.Add(new JavaScript.Function()
+                                {
+                                    Name = classElement.methodDefinition()?.propertyName()?.GetText(),
+                                    Events = events,
+                                    HasSideEffects = hasSideEffects,
+                                    Inputs = inputs,
+                                    Outputs = outputs
+                                });
+                            }
+                        }
+
+                        JavaScript.JavaScriptClass = new JavaScript.Class
+                        {
+                            Name = statement.classDeclaration().identifier()?.GetText(),
+                            Extends = statement.classDeclaration().classTail()?.singleExpression()?.GetText(),
+                            Methods = methods
+                        };
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private BlockChainType GetBlockChainType(JavaScriptParser.ProgramContext context)
+        {
+            if (context.GetText().ToLower().Contains(&quot;ethereum&quot;))
+            {
+                return BlockChainType.Ethereum;
+            }
+
+            if (context.GetText().ToLower().Contains(&quot;bitcoin&quot;))
+            {
+                return BlockChainType.Bitcoin;
+            }
+
+            if (context.GetText().ToLower().Contains(&quot;neo&quot;))
+            {
+                return BlockChainType.Neo;
+            }
+
+            if (context.GetText().ToLower().Contains(&quot;fabric&quot;))
+            {
+                return BlockChainType.Fabric;
+            }
+
+            return BlockChainType.Ethereum;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,40,10,44,1],[12,9,12,35,1],[14,13,20,15,1],[21,9,21,10,1],[25,13,25,68,1],[27,17,27,72,1],[28,17,28,79,1],[29,26,29,43,1],[29,44,29,46,1],[29,47,29,61,1],[31,21,31,63,1],[32,21,34,73,1],[36,25,36,107,0],[37,25,37,56,0],[38,21,38,22,0],[39,26,40,73,1],[42,25,42,76,0],[43,25,43,56,0],[44,21,44,22,0],[45,26,46,75,1],[48,34,48,46,1],[48,47,48,49,1],[48,50,49,51,1],[51,29,52,45,1],[53,29,53,119,1],[54,29,58,32,1],[60,21,60,22,1],[61,26,62,77,1],[64,25,64,71,0],[65,25,65,72,0],[66,25,66,57,0],[67,25,67,52,0],[68,34,68,50,0],[68,51,68,53,0],[68,54,69,58,0],[71,29,75,32,0],[78,34,78,42,0],[78,43,78,45,0],[78,46,79,45,0],[81,29,82,54,0],[83,29,85,82,0],[87,42,87,56,0],[87,57,87,59,0],[87,60,87,74,0],[89,37,89,79,0],[90,37,90,67,0],[92,41,93,87,0],[95,45,95,106,0],[96,45,96,102,0],[100,37,100,67,0],[102,41,102,70,0],[103,41,103,63,0],[108,29,109,54,0],[110,29,112,82,0],[114,42,114,56,0],[114,57,114,59,0],[114,60,114,76,0],[116,37,120,40,0],[125,25,132,28,0],[133,21,133,22,0],[134,26,135,74,1],[137,25,137,71,1],[139,34,139,50,1],[139,51,139,53,1],[139,54,139,109,1],[141,29,142,82,1],[144,33,144,79,1],[145,33,145,80,1],[146,33,146,65,1],[147,33,147,60,1],[148,42,148,58,1],[148,59,148,61,1],[148,62,149,66,1],[151,37,155,40,1],[158,42,158,50,1],[158,51,158,53,1],[158,54,159,53,1],[161,37,162,62,1],[163,37,165,92,1],[167,50,167,64,1],[167,65,167,67,1],[167,68,167,82,1],[169,45,169,87,1],[170,45,170,75,1],[172,49,173,95,1],[175,53,175,114,1],[176,53,176,110,1],[180,45,180,75,1],[182,49,182,71,1],[183,49,183,78,1],[188,37,189,62,1],[190,37,192,90,1],[194,50,194,64,0],[194,65,194,67,0],[194,68,194,84,0],[196,45,200,48,0],[205,33,212,36,1],[216,25,221,27,1],[226,13,226,25,1],[231,13,231,66,1],[233,17,233,48,0],[236,13,236,65,1],[238,17,238,47,0],[241,13,241,61,1],[243,17,243,43,0],[246,13,246,64,1],[248,17,248,46,1],[251,13,251,44,0]]);
+    </script>
+  </body>
+</html>

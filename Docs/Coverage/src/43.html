@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation.UnitTests/ClientAppGeneratorTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using SCTransformation.Models;
+using Xunit;
+
+namespace SCTransformation.UnitTests
+{
+    public class ClientAppGeneratorTests
+    {
+        [Fact]
+        public void TestBuild()
+        {
+            var smartContractDescriptor = new SmartContractDescriptor
+            {
+                Name = &quot;main&quot;,
+                Functions = new List&lt;SmartContractDescriptor.Function&gt;
+                {
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;DeployWinnerTakesAll&quot;
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;bindWinnerTakesAll&quot;
+                    }
+                }
+            };
+            var path = ClientApplicationGenerator.Build(JsonConvert.SerializeObject(smartContractDescriptor),&quot;package&quot;,&quot;callback&quot;);
+            Assert.NotNull(path);
+        }
+        
+        [Fact]
+        public void TestBuildTextEmpty()
+        {
+            var path = ClientApplicationGenerator.Build(&quot;&quot;,&quot;package&quot;,&quot;callback&quot;);
+            Assert.NotNull(path);
+        }
+        
+        [Fact]
+        public void TestBuildPackageNameEmpty()
+        {
+            var smartContractDescriptor = new SmartContractDescriptor
+            {
+                Name = &quot;main&quot;,
+                Functions = new List&lt;SmartContractDescriptor.Function&gt;
+                {
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;DeployWinnerTakesAll&quot;
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;bindWinnerTakesAll&quot;
+                    }
+                }
+            };
+            var path = ClientApplicationGenerator.Build(JsonConvert.SerializeObject(smartContractDescriptor),&quot;&quot;,&quot;callback&quot;);
+            Assert.NotNull(path);
+        }
+        
+        [Fact]
+        public void TestBuildCallbackUrlEmpty()
+        {
+            var smartContractDescriptor = new SmartContractDescriptor
+            {
+                Name = &quot;main&quot;,
+                Functions = new List&lt;SmartContractDescriptor.Function&gt;
+                {
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;DeployWinnerTakesAll&quot;
+                    },
+                    new SmartContractDescriptor.Function
+                    {
+                        Name = &quot;bindWinnerTakesAll&quot;
+                    }
+                }
+            };
+            var path = ClientApplicationGenerator.Build(JsonConvert.SerializeObject(smartContractDescriptor),&quot;package&quot;,&quot;&quot;);
+            Assert.NotNull(path);
+        }
+        
+        [Fact]
+        public void TestBuildAllEmpty()
+        {
+            var path = ClientApplicationGenerator.Build(&quot;&quot;,&quot;&quot;,&quot;&quot;);
+            Assert.NotNull(path);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,13,27,15,1],[28,13,28,132,1],[29,13,29,34,1],[30,9,30,10,1],[35,13,35,82,1],[36,13,36,34,1],[37,9,37,10,1],[42,13,56,15,1],[57,13,57,125,1],[58,13,58,34,1],[59,9,59,10,1],[64,13,78,15,1],[79,13,79,124,1],[80,13,80,34,1],[81,9,81,10,1],[86,13,86,67,1],[87,13,87,34,1],[88,9,88,10,1]]);
+    </script>
+  </body>
+</html>

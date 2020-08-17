@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation.API/Models/SCIPInput.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+
+namespace SCTransformation.API.Models
+{
+    /// &lt;summary&gt;
+    /// 
+    /// &lt;/summary&gt;
+    public class SCIPInput
+    {
+        /// &lt;summary&gt;
+        /// Content of Smart contract descriptor
+        /// &lt;/summary&gt;
+        [Required]
+        public string Content { get; set; }
+        /// &lt;summary&gt;
+        /// Package name of client app to be generated
+        /// &lt;/summary&gt;
+        [Required]
+        public string PackageName { get; set; }
+        /// &lt;summary&gt;
+        /// CallbackUrl for Client App
+        /// &lt;/summary&gt;
+        [Required]
+        public string CallbackUrl { get; set; }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[14,33,14,37,0],[14,38,14,42,0],[19,37,19,41,0],[19,42,19,46,0],[24,37,24,41,0],[24,42,24,46,0]]);
+    </script>
+  </body>
+</html>

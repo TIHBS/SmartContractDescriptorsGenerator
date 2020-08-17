@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/ClientApplicationGenerator.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using Antlr4.StringTemplate;
+using Newtonsoft.Json;
+using SCTransformation.Helpers;
+using SCTransformation.Models;
+
+namespace SCTransformation
+{
+    public static class ClientApplicationGenerator
+    {
+        private static readonly string ApplicationDirectory =
+            $&quot;{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/client_application&quot;;
+
+        private static string BuildJavaApplication(SmartContractDescriptor smartContractDescriptor,
+            string packageName, string callbackUrl)
+        {
+            var files = new List&lt;KeyValuePair&lt;string, string&gt;&gt;();
+            var assembly = Assembly.GetExecutingAssembly();
+            var paths = assembly.GetManifestResourceNames();
+            var controllerHeader = string.Empty;
+            var controllerFunctions = string.Empty;
+            var controllerEvents = string.Empty;
+            var controllerFooter = string.Empty;
+            foreach (var path in paths)
+            {
+                var stream = assembly.GetManifestResourceStream(path);
+                if (stream != null)
+                {
+                    if (path.Contains(&quot;FunctionParameter&quot;))
+                    {
+                        var smartContractPath = path.Replace(&quot;smartcontract&quot;, smartContractDescriptor.Name.ToLower());
+                        foreach (var function in smartContractDescriptor.Functions)
+                        {
+                            var tempPath = smartContractPath.Replace(&quot;Function&quot;, ToUpperFirstLetter(function.Name));
+
+                            var functionTemplate = CreateFreshTemplate(stream, smartContractDescriptor, packageName,
+                                callbackUrl);
+                            functionTemplate.Add(&quot;functionParameterName&quot;, ToUpperFirstLetter(function.Name));
+                            foreach (var parameter in function.Inputs)
+                            {
+                                functionTemplate.Add(&quot;parameterarray&quot;,
+                                    new[] {parameter.Name});
+                            }
+
+                            files.Add(new KeyValuePair&lt;string, string&gt;(CreateDirectory(tempPath, packageName),
+                                Regex.Escape(functionTemplate.Render())));
+                        }
+
+                        continue;
+                    }
+
+                    if (path.Contains(&quot;ControllerHeader&quot;))
+                    {
+                        var template = CreateFreshTemplate(stream, smartContractDescriptor, packageName,
+                            callbackUrl);
+                        controllerHeader = template.Render();
+                        continue;
+                    }
+
+                    if (path.Contains(&quot;ControllerFunctions&quot;))
+                    {
+                        foreach (var function in smartContractDescriptor.Functions)
+                        {
+                            var template = CreateFreshTemplate(stream, smartContractDescriptor, packageName,
+                                callbackUrl);
+                            template.Add(&quot;functionParameter&quot;, ToUpperFirstLetter(function.Name));
+                            var privateFunction = new Function
+                            {
+                                Name = function.Name,
+                                FirstCapital = ToUpperFirstLetter(function.Name)
+                            };
+                            template.Add(&quot;functionArray&quot;, new[] {privateFunction});
+                            foreach (var parameter in function.Inputs)
+                            {
+                                var privateParameter = new Parameter
+                                {
+                                    FirstCapital = ToUpperFirstLetter(parameter.Name),
+                                    Name = parameter.Name,
+                                    ParamType = parameter.Type
+                                };
+                                template.Add(&quot;inputparameterarray&quot;,
+                                    new[] {privateParameter});
+                            }
+
+                            foreach (var parameter in function.Outputs)
+                            {
+                                var privateParameter = new Parameter
+                                {
+                                    FirstCapital = ToUpperFirstLetter(parameter.Name),
+                                    Name = parameter.Name,
+                                    ParamType = parameter.Type
+                                };
+                                template.Add(&quot;outputparameterarray&quot;, new[] {privateParameter});
+                            }
+
+                            controllerFunctions += template.Render();
+                        }
+
+                        continue;
+                    }
+
+                    if (path.Contains(&quot;ControllerEvents&quot;))
+                    {
+                        foreach (var scEvent in smartContractDescriptor.Events)
+                        {
+                            var template = CreateFreshTemplate(stream, smartContractDescriptor, packageName,
+                                callbackUrl);
+                            var privateEvent = new Event
+                            {
+                                Name = scEvent.Name,
+                                FirstCapital = ToUpperFirstLetter(scEvent.Name)
+                            };
+                            template.Add(&quot;eventArray&quot;, new[] {privateEvent});
+                            foreach (var parameter in scEvent.Outputs)
+                            {
+                                var privateParameter = new Parameter
+                                {
+                                    FirstCapital = ToUpperFirstLetter(parameter.Name),
+                                    Name = parameter.Name,
+                                    ParamType = parameter.Type
+                                };
+                                template.Add(&quot;eventoutputparameterarray&quot;, new[] {privateParameter});
+                            }
+
+                            controllerEvents += template.Render();
+                        }
+
+                        continue;
+                    }
+
+                    if (path.Contains(&quot;ControllerFooter&quot;))
+                    {
+                        var template = CreateFreshTemplate(stream, smartContractDescriptor, packageName,
+                            callbackUrl);
+                        controllerFooter = template.Render();
+                        continue;
+                    }
+
+                    if (path.Contains(&quot;SmartContract&quot;))
+                    {
+                        var smartContractPath = path.Replace(&quot;smartcontract&quot;, smartContractDescriptor.Name.ToLower());
+                        smartContractPath = smartContractPath.Replace(&quot;SmartContract&quot;,
+                            ToUpperFirstLetter(smartContractDescriptor.Name));
+                        files.Add(new KeyValuePair&lt;string, string&gt;(CreateDirectory(smartContractPath, packageName),
+                            Regex.Escape(
+                                $&quot;{controllerHeader}{controllerFunctions}{controllerEvents}{controllerFooter}&quot;)));
+                        continue;
+                    }
+
+                    files.Add(new KeyValuePair&lt;string, string&gt;(CreateDirectory(path, packageName),
+                        Regex.Escape(CreateFreshTemplate(stream, smartContractDescriptor, packageName, callbackUrl)
+                            .Render())));
+                }
+            }
+
+            return WriteFiles(files) ? ApplicationDirectory : &quot;Something went wrong&quot;;
+        }
+
+        private static Template CreateFreshTemplate(Stream stream, SmartContractDescriptor smartContractDescriptor,
+            string packageName, string callbackUrl)
+        {
+            var reader = new StreamReader(stream);
+            var template = new Template(reader.ReadToEnd(), &#39;€&#39;, &#39;€&#39;);
+            stream.Position = 0;
+            template.Add(&quot;packageName&quot;, packageName);
+            template.Add(&quot;sclAddress&quot;, smartContractDescriptor.SclAddress);
+            template.Add(&quot;callbackUrl&quot;, callbackUrl);
+            template.Add(&quot;contractPackageName&quot;, smartContractDescriptor.Name.ToLower());
+            template.Add(&quot;contractName&quot;, ToUpperFirstLetter(smartContractDescriptor.Name));
+            return template;
+        }
+
+        private static string CreateDirectory(string path, string packageName)
+        {
+            Directory.CreateDirectory(ApplicationDirectory);
+            if (path.ToLower().Contains(&quot;pom.xml&quot;))
+            {
+                return $&quot;{ApplicationDirectory}/pom.xml&quot;;
+            }
+
+            var sourceDirectory = $&quot;{ApplicationDirectory}/src/main/java/&quot;;
+            if (packageName.Contains(&quot;.&quot;))
+            {
+                var packageFolders = packageName.Split(&quot;.&quot;);
+                foreach (var package in packageFolders)
+                {
+                    sourceDirectory += $&quot;{package}/&quot;;
+                }
+            }
+            else
+            {
+                sourceDirectory += $&quot;{packageName}/&quot;;
+            }
+
+            sourceDirectory += $&quot;client_application/&quot;;
+            var pathParts = path.Split(&quot;.&quot;).Skip(3).ToArray();
+            var length = pathParts.Length;
+            for (var i = 0; i &lt; length - 3; i++)
+            {
+                sourceDirectory += $&quot;{pathParts[i]}/&quot;;
+            }
+
+            Directory.CreateDirectory(sourceDirectory);
+            sourceDirectory += $&quot;{pathParts[length - 3]}.{pathParts[length - 2]}&quot;;
+            return $&quot;{sourceDirectory}&quot;;
+        }
+
+        private static bool WriteFiles(IEnumerable&lt;KeyValuePair&lt;string, string&gt;&gt; files)
+        {
+            foreach (var (path, renderedTemplate) in files)
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+
+                using (File.Create(path))
+                {
+                }
+
+                Console.WriteLine(path);
+                File.WriteAllText(path, Regex.Unescape(renderedTemplate));
+            }
+
+            return true;
+        }
+
+        public static string Build(string textOfFile, string packageName, string callbackUrl)
+        {
+            try
+            {
+                var smartContractDescriptor = JsonConvert.DeserializeObject&lt;SmartContractDescriptor&gt;(textOfFile);
+                return BuildJavaApplication(smartContractDescriptor, packageName, callbackUrl);
+            }
+            catch (Exception)
+            {
+                return Constants.ErrorBuildingApp;
+            }
+        }
+
+        private class Parameter
+        {
+            public string Name;
+            public string FirstCapital;
+            public string ParamType;
+        }
+
+        private class Function
+        {
+            public string Name;
+            public string FirstCapital;
+        }
+
+        private class Event
+        {
+            public string Name;
+            public string FirstCapital;
+        }
+
+        private static string ToUpperFirstLetter(string source)
+        {
+            if (string.IsNullOrEmpty(source))
+            {
+                return string.Empty;
+            }
+
+            var letters = source.ToCharArray();
+            letters[0] = char.ToUpper(letters[0]);
+            return new string(letters);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[16,9,17,102,0],[22,13,22,66,1],[23,13,23,60,1],[24,13,24,61,1],[25,13,25,49,1],[26,13,26,52,1],[27,13,27,49,1],[28,13,28,49,1],[29,22,29,30,1],[29,31,29,33,1],[29,34,29,39,1],[31,17,31,71,1],[32,17,32,36,1],[34,21,34,60,1],[36,25,36,119,0],[37,34,37,46,0],[37,47,37,49,0],[37,50,37,83,0],[39,29,39,117,0],[41,29,42,46,0],[43,29,43,110,0],[44,38,44,51,0],[44,52,44,54,0],[44,55,44,70,0],[46,33,47,61,0],[50,29,51,75,0],[57,21,57,59,1],[59,25,60,42,1],[61,25,61,62,1],[62,25,62,34,1],[65,21,65,62,1],[67,34,67,46,1],[67,47,67,49,1],[67,50,67,83,1],[69,29,70,46,1],[71,29,71,98,1],[72,29,76,31,1],[77,29,77,84,1],[78,38,78,51,0],[78,52,78,54,0],[78,55,78,70,1],[80,33,85,35,0],[86,33,87,63,0],[90,38,90,51,0],[90,52,90,54,0],[90,55,90,71,0],[92,33,97,35,0],[98,33,98,96,0],[101,29,101,70,0],[107,21,107,59,0],[109,34,109,45,0],[109,46,109,48,0],[109,49,109,79,0],[111,29,112,46,0],[113,29,117,31,0],[118,29,118,78,0],[119,38,119,51,0],[119,52,119,54,0],[119,55,119,70,0],[121,33,126,35,0],[127,33,127,101,0],[130,29,130,67,0],[136,21,136,59,0],[138,25,139,42,0],[140,25,140,62,0],[141,25,141,34,0],[144,21,144,56,0],[146,25,146,119,0],[147,25,148,79,0],[149,25,151,115,0],[152,25,152,34,0],[155,21,157,42,0],[161,13,161,86,0],[167,13,167,51,1],[168,13,168,71,1],[169,13,169,33,1],[170,13,170,54,1],[171,13,171,76,1],[172,13,172,54,1],[173,13,173,89,1],[174,13,174,92,1],[175,13,175,29,1],[180,13,180,61,0],[181,13,181,52,0],[183,17,183,58,0],[186,13,186,76,0],[187,13,187,43,0],[189,17,189,61,0],[190,26,190,37,0],[190,38,190,40,0],[190,41,190,55,0],[192,21,192,54,0],[194,13,194,14,0],[197,17,197,54,0],[200,13,200,55,0],[201,13,201,63,0],[202,13,202,43,0],[203,18,203,27,0],[203,29,203,43,0],[203,45,203,48,0],[205,17,205,55,0],[208,13,208,56,0],[209,13,209,83,0],[210,13,210,41,0],[215,22,215,50,0],[215,51,215,53,0],[215,54,215,59,0],[217,17,217,39,0],[219,21,219,39,0],[222,17,222,42,0],[224,17,224,18,0],[226,17,226,41,0],[227,17,227,75,0],[230,13,230,25,0],[237,17,237,114,1],[238,17,238,96,1],[240,13,240,30,1],[242,17,242,51,1],[244,9,244,10,1],[267,13,267,46,1],[269,17,269,37,0],[272,13,272,48,1],[273,13,273,51,1],[274,13,274,40,1]]);
+    </script>
+  </body>
+</html>

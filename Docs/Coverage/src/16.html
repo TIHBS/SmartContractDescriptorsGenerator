@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/Models/Go.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Collections.Generic;
+
+namespace SCTransformation.Models
+{
+    public class Go
+    {
+        public string RawFileContent { get; set; }
+        public string PackageName { get; set; }
+        public List&lt;string&gt; Imports { get; set; }
+        public List&lt;Function&gt; Functions { get; set; }
+        public List&lt;Method&gt; Methods { get; set; }
+        public List&lt;Var&gt; Vars { get; set; }
+        public List&lt;Const&gt; Consts { get; set; }
+        public List&lt;Type_&gt; Types { get; set; }
+        public BlockChainType BlockChainType { get; set; }
+
+        public class Function
+        {
+            public string Name { get; set; }
+            public List&lt;Parameter&gt; Inputs { get; set; }
+            public List&lt;Parameter&gt; Returns { get; set; }
+        }
+
+        public class Method
+        {
+            public string Name { get; set; }
+            public List&lt;Parameter&gt; Receiver { get; set; }
+            public List&lt;Parameter&gt; Inputs { get; set; }
+            public List&lt;Parameter&gt; Returns { get; set; }
+        }
+
+        public class Var
+        {
+            public string Name { get; set; }
+            public string Type { get; set; }
+        }
+
+        public class Const
+        {
+            public string Name { get; set; }
+            public string Type { get; set; }
+        }
+
+        public class Type_
+        {
+            public string Name { get; set; }
+            public string Type { get; set; }
+        }
+
+        public class Parameter
+        {
+            public string Name { get; set; }
+            public string Type { get; set; }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[7,40,7,44,1],[7,45,7,49,1],[8,37,8,41,1],[8,42,8,46,1],[9,39,9,43,1],[9,44,9,48,1],[10,43,10,47,1],[10,48,10,52,1],[11,39,11,43,1],[11,44,11,48,1],[12,33,12,37,0],[12,38,12,42,1],[13,37,13,41,1],[13,42,13,46,1],[14,36,14,40,1],[14,41,14,45,1],[15,48,15,52,1],[15,53,15,57,1],[19,34,19,38,1],[19,39,19,43,1],[20,45,20,49,1],[20,50,20,54,1],[21,46,21,50,1],[21,51,21,55,1],[26,34,26,38,0],[26,39,26,43,1],[27,47,27,51,0],[27,52,27,56,1],[28,45,28,49,0],[28,50,28,54,1],[29,46,29,50,0],[29,51,29,55,1],[34,34,34,38,0],[34,39,34,43,0],[35,34,35,38,0],[35,39,35,43,0],[40,34,40,38,0],[40,39,40,43,1],[41,34,41,38,0],[41,39,41,43,1],[46,34,46,38,0],[46,39,46,43,1],[47,34,47,38,0],[47,39,47,43,1],[52,34,52,38,1],[52,39,52,43,1],[53,34,53,38,1],[53,39,53,43,1]]);
+    </script>
+  </body>
+</html>

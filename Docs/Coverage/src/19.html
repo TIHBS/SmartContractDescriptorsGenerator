@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/Models/Solidity.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Collections.Generic;
+
+namespace SCTransformation.Models
+{
+    public class Solidity
+    {
+        public string RawFileContent { get; set; }
+        public string Pragma { get; set; }
+        public List&lt;string&gt; Imports { get; set; }
+        public List&lt;Contract&gt; Contracts { get; set; }
+        public BlockChainType BlockChainType { get; set; }
+
+        public class Contract
+        {
+            public bool IsStateful { get; set; }
+            public string Name { get; set; }
+            public List&lt;StateVariable&gt; StateVariables { get; set; }
+            public List&lt;Function&gt; Functions { get; set; }
+            public List&lt;Event&gt; Events { get; set; }
+            public List&lt;Modifier&gt; Modifiers { get; set; }
+            public List&lt;SolidityEnum&gt; Enums { get; set; }
+            public List&lt;Struct&gt; Structs { get; set; }
+            public bool Abstract { get; set; }
+        }
+
+        public class StateVariable
+        {
+            public string Type { get; set; }
+            public string Name { get; set; }
+            public List&lt;string&gt; Keywords { get; set; }
+        }
+
+        public class Function
+        {
+            public string Name { get; set; }
+            public List&lt;Parameter&gt; Parameters { get; set; }
+            public List&lt;Parameter&gt; ReturnParameters { get; set; }
+            public ModifierList ModifierList { get; set; }
+            public List&lt;string&gt; Events { get; set; }
+            public Scope Scope { get; set; }
+            public bool HasSideEffects { get; set; }
+        }
+
+        public class Event
+        {
+            public string Name { get; set; }
+            public List&lt;EventParameter&gt; EventParameters { get; set; }
+            public bool Anonymous { get; set; }
+        }
+
+        public class Modifier
+        {
+            public string Name { get; set; }
+            public List&lt;Parameter&gt; Parameters { get; set; }
+        }
+
+        public class ModifierList
+        {
+            public StateMutability StateMutability { get; set; }
+            public ModifierInvocation ModifierInvocation { get; set; }
+            public bool IsVirtual { get; set; }
+            public List&lt;string&gt; Override { get; set; }
+        }
+
+        public class ModifierInvocation
+        {
+            public string Identifier { get; set; }
+            public List&lt;string&gt; Expressions { get; set; }
+        }
+
+        public enum StateMutability
+        {
+            None,
+            Pure,
+            Constant,
+            View,
+            Payable
+        }
+
+        public class Parameter
+        {
+            public string Type { get; set; }
+            public string Name { get; set; }
+            public StorageLocation StorageLocation { get; set; }
+        }
+
+        public class EventParameter
+        {
+            public string Type { get; set; }
+            public string Name { get; set; }
+            public bool IsIndexed { get; set; }
+        }
+
+        public class SolidityEnum
+        {
+            public string Name { get; set; }
+            public List&lt;string&gt; Enums { get; set; }
+        }
+
+        public class Struct
+        {
+            public string Name { get; set; }
+            public List&lt;Variable&gt; Variables { get; set; }
+        }
+
+        public class Variable
+        {
+            public string Type { get; set; }
+            public string Name { get; set; }
+            public StorageLocation StorageLocation { get; set; }
+        }
+
+        public enum StorageLocation
+        {
+            None,
+            Memory,
+            Storage,
+            CallData
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[7,40,7,44,1],[7,45,7,49,1],[8,32,8,36,1],[8,37,8,41,1],[9,39,9,43,1],[9,44,9,48,1],[10,43,10,47,1],[10,48,10,52,1],[11,48,11,52,1],[11,53,11,57,1],[15,38,15,42,1],[15,43,15,47,1],[16,34,16,38,1],[16,39,16,43,1],[17,57,17,61,1],[17,62,17,66,1],[18,47,18,51,1],[18,52,18,56,1],[19,41,19,45,1],[19,46,19,50,1],[20,47,20,51,1],[20,52,20,56,1],[21,47,21,51,1],[21,52,21,56,1],[22,43,22,47,1],[22,48,22,52,1],[23,36,23,40,0],[23,41,23,45,1],[28,34,28,38,0],[28,39,28,43,1],[29,34,29,38,0],[29,39,29,43,1],[30,44,30,48,0],[30,49,30,53,1],[35,34,35,38,1],[35,39,35,43,1],[36,49,36,53,1],[36,54,36,58,1],[37,55,37,59,1],[37,60,37,64,1],[38,48,38,52,1],[38,53,38,57,1],[39,42,39,46,1],[39,47,39,51,1],[40,34,40,38,1],[40,39,40,43,1],[41,42,41,46,1],[41,47,41,51,1],[46,34,46,38,1],[46,39,46,43,1],[47,59,47,63,1],[47,64,47,68,1],[48,37,48,41,0],[48,42,48,46,1],[53,34,53,38,0],[53,39,53,43,1],[54,49,54,53,0],[54,54,54,58,1],[59,54,59,58,1],[59,59,59,63,1],[60,60,60,64,0],[60,65,60,69,1],[61,37,61,41,0],[61,42,61,46,1],[62,44,62,48,0],[62,49,62,53,1],[67,40,67,44,0],[67,45,67,49,1],[68,47,68,51,0],[68,52,68,56,1],[82,34,82,38,1],[82,39,82,43,1],[83,34,83,38,1],[83,39,83,43,1],[84,54,84,58,0],[84,59,84,63,1],[89,34,89,38,1],[89,39,89,43,1],[90,34,90,38,1],[90,39,90,43,1],[91,37,91,41,1],[91,42,91,46,1],[96,34,96,38,0],[96,39,96,43,1],[97,41,97,45,0],[97,46,97,50,1],[102,34,102,38,0],[102,39,102,43,1],[103,47,103,51,0],[103,52,103,56,1],[108,34,108,38,0],[108,39,108,43,1],[109,34,109,38,0],[109,39,109,43,1],[110,54,110,58,0],[110,59,110,63,1]]);
+    </script>
+  </body>
+</html>

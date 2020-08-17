@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation.API/Program.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace SCTransformation.API
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =&gt;
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =&gt;
+                {
+                    webBuilder.UseUrls(&quot;http://localhost:5055&quot;);
+                    webBuilder.UseStartup&lt;Startup&gt;();
+                });
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[16,13,16,51,0],[17,9,17,10,0],[20,13,23,21,0],[23,21,23,65,0],[23,65,24,21,0],[24,21,24,54,0],[24,54,25,17,0],[25,17,25,18,0],[25,18,25,19,0],[20,13,25,19,0]]);
+    </script>
+  </body>
+</html>

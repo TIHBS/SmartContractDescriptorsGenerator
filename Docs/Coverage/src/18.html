@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/Models/SmartContractDescriptor.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace SCTransformation.Models
+{
+    public class SmartContractDescriptor
+    {
+        public string ScdlVersion { get; set; }
+        public string Name { get; set; }
+        public string Version { get; set; }
+        public Uri LatestUrl { get; set; }
+        public string Description { get; set; }
+        public string Author { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public DateTime UpdatedOn { get; set; }
+        public LifeCycle LifeCycle { get; set; }
+        public Uri SclAddress { get; set; }
+        public BlockChainType BlockChainType { get; set; }
+        public string BlockChainVersion { get; set; }
+        public string InternalAddress { get; set; }
+        public Uri MetaData { get; set; }
+        public string Hash { get; set; }
+        public bool IsStateful { get; set; }
+        //TODO: add as missing part
+        public string ContractLanguage { get; set; }
+        public string ContractLanguageVersion { get; set; }
+        public List&lt;Function&gt; Functions { get; set; }
+        public List&lt;Event&gt; Events { get; set; }
+
+        public class Parameter
+        {
+            public string Name { get; set; }
+            public string Type { get; set; }
+            public bool IsIndexed { get; set; }
+        }
+
+        public class Event
+        {
+            [Required] public string Name { get; set; }
+            public string Description { get; set; }
+            [Required] public List&lt;Parameter&gt; Outputs { get; set; }
+        }
+
+        public class Function
+        {
+            public string Name { get; set; }
+            public string Description { get; set; }
+            public Scope Scope { get; set; }
+            public bool HasSideEffects { get; set; }
+            public string Dispatcher { get; set; }
+            public List&lt;Parameter&gt; Inputs { get; set; }
+            public List&lt;Parameter&gt; Outputs { get; set; }
+            public List&lt;string&gt; Events { get; set; }
+        }
+
+        
+    }
+    public enum Scope
+    {
+        Public,
+        Private,
+        Internal,
+        External
+    }
+    public enum BlockChainType
+    {
+        Ethereum,
+        Bitcoin,
+        Fabric,
+        Neo
+    }
+
+    public enum LifeCycle
+    {
+        Ready,
+        Destroyed
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[9,37,9,41,1],[9,42,9,46,1],[10,30,10,34,1],[10,35,10,39,1],[11,33,11,37,1],[11,38,11,42,1],[12,32,12,36,1],[12,37,12,41,1],[13,37,13,41,1],[13,42,13,46,1],[14,32,14,36,1],[14,37,14,41,1],[15,37,15,41,1],[15,42,15,46,1],[16,37,16,41,1],[16,42,16,46,1],[17,38,17,42,1],[17,43,17,47,1],[18,33,18,37,1],[18,38,18,42,1],[19,48,19,52,1],[19,53,19,57,1],[20,43,20,47,1],[20,48,20,52,1],[21,41,21,45,1],[21,46,21,50,1],[22,31,22,35,1],[22,36,22,40,1],[23,30,23,34,1],[23,35,23,39,1],[24,34,24,38,1],[24,39,24,43,1],[26,42,26,46,1],[26,47,26,51,1],[27,49,27,53,1],[27,54,27,58,1],[28,43,28,47,1],[28,48,28,52,1],[29,37,29,41,1],[29,42,29,46,1],[33,34,33,38,0],[33,39,33,43,1],[34,34,34,38,0],[34,39,34,43,1],[35,37,35,41,0],[35,42,35,46,1],[40,45,40,49,1],[40,50,40,54,1],[41,41,41,45,0],[41,46,41,50,1],[42,57,42,61,0],[42,62,42,66,1],[47,34,47,38,1],[47,39,47,43,1],[48,41,48,45,1],[48,46,48,50,1],[49,34,49,38,1],[49,39,49,43,1],[50,42,50,46,1],[50,47,50,51,1],[51,40,51,44,1],[51,45,51,49,1],[52,45,52,49,1],[52,50,52,54,1],[53,46,53,50,1],[53,51,53,55,1],[54,42,54,46,1],[54,47,54,51,1]]);
+    </script>
+  </body>
+</html>

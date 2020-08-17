@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/Grammars/JavaScript/JavaScriptParserBase.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using Antlr4.Runtime;
+using SCTransformation.Models;
+using static SCTransformation.Grammars.JavaScript.JavaScriptParser;
+
+/// &lt;summary&gt;
+/// All parser methods that used in grammar (p, prev, notLineTerminator, etc.)
+/// should start with lower case char similar to parser rules.
+/// &lt;/summary&gt;
+public abstract class JavaScriptParserBase : Parser
+{
+    private readonly Stack&lt;string&gt; _tagNames = new Stack&lt;string&gt;();
+    public JavaScriptParserBase(ITokenStream input)
+        : base(input)
+    {
+    }
+
+    /// &lt;summary&gt;
+    /// Short form for prev(String str)
+    /// &lt;/summary&gt;
+    protected bool p(string str)
+    {
+        return prev(str);
+    }
+
+    /// &lt;summary&gt;
+    /// Whether the previous token value equals to str
+    /// &lt;/summary&gt;
+    protected bool prev(string str)
+    {
+        return _input.Lt(-1).Text.Equals(str);
+    }
+
+    // Short form for next(String str)
+    protected bool n(string str)
+    {
+        return next(str);
+    }
+
+    // Whether the next token value equals to @param str
+    protected bool next(string str)
+    {
+        return _input.Lt(1).Text.Equals(str);
+    }
+
+    protected bool notLineTerminator()
+    {
+        return !here(LineTerminator);
+    }
+
+    protected bool notOpenBraceAndNotFunction()
+    {
+        int nextTokenType = _input.Lt(1).Type;
+        return nextTokenType != OpenBrace &amp;&amp; nextTokenType != Function;
+    }
+
+    protected bool closeBrace()
+    {
+        return _input.Lt(1).Type == CloseBrace;
+    }
+
+    /// &lt;summary&gt;Returns true if on the current index of the parser&#39;s
+    /// token stream a token of the given type exists on the
+    /// Hidden channel.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;type&quot;&gt;
+    /// The type of the token on the Hidden channel to check.
+    /// &lt;/param&gt;
+    protected bool here(int type)
+    {
+        // Get the token ahead of the current index.
+        int possibleIndexEosToken = CurrentToken.TokenIndex - 1;
+        IToken ahead = _input.Get(possibleIndexEosToken);
+
+        // Check if the token resides on the Hidden channel and if it&#39;s of the
+        // provided type.
+        return ahead.Channel == Lexer.Hidden &amp;&amp; ahead.Type == type;
+    }
+
+    /// &lt;summary&gt;
+    /// Returns true if on the current index of the parser&#39;s
+    /// token stream a token exists on the Hidden channel which
+    /// either is a line terminator, or is a multi line comment that
+    /// contains a line terminator.
+    /// &lt;/summary&gt;
+    protected bool lineTerminatorAhead()
+    {
+        // Get the token ahead of the current index.
+        int possibleIndexEosToken = CurrentToken.TokenIndex - 1;
+        IToken ahead = _input.Get(possibleIndexEosToken);
+
+        if (ahead.Channel != Lexer.Hidden)
+        {
+            // We&#39;re only interested in tokens on the Hidden channel.
+            return false;
+        }
+
+        if (ahead.Type == LineTerminator)
+        {
+            // There is definitely a line terminator ahead.
+            return true;
+        }
+
+        if (ahead.Type == WhiteSpaces)
+        {
+            // Get the token ahead of the current whitespaces.
+            possibleIndexEosToken = CurrentToken.TokenIndex - 2;
+            ahead = _input.Get(possibleIndexEosToken);
+        }
+
+        // Get the token&#39;s text and type.
+        string text = ahead.Text;
+        int type = ahead.Type;
+
+        // Check if the token is, or contains a line terminator.
+        return (type == MultiLineComment &amp;&amp; (text.Contains(&quot;\r&quot;) || text.Contains(&quot;\n&quot;))) ||
+                (type == LineTerminator);
+    }
+
+    protected void pushHtmlTagName(string tagName)
+    {
+        _tagNames.Push(tagName);
+    }
+
+    protected bool popHtmlTagName(string tagName)
+    {
+        return string.Equals(_tagNames.Pop(),tagName, StringComparison.InvariantCulture);
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,5,13,68,1],[15,11,15,22,1],[17,5,17,6,1],[24,9,24,26,0],[32,9,32,47,0],[38,9,38,26,1],[44,9,44,46,1],[49,9,49,38,0],[54,9,54,47,1],[55,9,55,72,1],[60,9,60,48,1],[73,9,73,65,0],[74,9,74,58,0],[78,9,78,68,0],[90,9,90,65,1],[91,9,91,58,1],[93,9,93,43,1],[96,13,96,26,1],[99,9,99,42,0],[102,13,102,25,0],[105,9,105,39,0],[108,13,108,65,0],[109,13,109,55,0],[113,9,113,34,0],[114,9,114,31,0],[117,9,118,42,0],[123,9,123,33,0],[124,5,124,6,0],[128,9,128,90,0]]);
+    </script>
+  </body>
+</html>

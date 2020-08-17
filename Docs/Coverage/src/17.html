@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/artuvan/Github/SmartContractDescriptorsGenerator/SCTransformation/Models/JavaScript.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Collections.Generic;
+
+namespace SCTransformation.Models
+{
+    public class JavaScript
+    {
+        public string RawFileContent { get; set; }
+        public bool IsStateful { get; set; }
+        public List&lt;string&gt; Imports { get; set; }
+        public List&lt;string&gt; Exports { get; set; }
+        public List&lt;Variable&gt; Variables { get; set; }
+        public Class JavaScriptClass { get; set; }
+        public List&lt;Function&gt; Functions { get; set; }
+        public BlockChainType BlockChainType { get; set; }
+        public class Class
+        {
+            public string Name { get; set; }
+            public string Extends { get; set; }
+            public List&lt;Function&gt; Methods { get; set; }
+            public List&lt;Variable&gt; Variables { get; set; }
+        }
+
+        public class Parameter
+        {
+            public string Name { get; set; }
+            public string Type { get; set; }
+        }
+
+        public class Variable
+        {
+            public string Name { get; set; }
+            public string Type { get; set; }
+        }
+
+        public class Function
+        {
+            public string Name { get; set; }
+            public List&lt;string&gt; Events { get; set; }
+            public List&lt;Parameter&gt; Inputs { get; set; }
+            public List&lt;Parameter&gt; Outputs { get; set; }
+            public bool HasSideEffects { get; set; }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[7,40,7,44,1],[7,45,7,49,1],[8,34,8,38,1],[8,39,8,43,1],[9,39,9,43,0],[9,44,9,48,1],[10,39,10,43,0],[10,44,10,48,1],[11,43,11,47,1],[11,48,11,52,1],[12,40,12,44,1],[12,45,12,49,1],[13,43,13,47,1],[13,48,13,52,1],[14,48,14,52,1],[14,53,14,57,1],[17,34,17,38,1],[17,39,17,43,1],[18,37,18,41,0],[18,42,18,46,1],[19,45,19,49,1],[19,50,19,54,1],[20,47,20,51,0],[20,52,20,56,0],[25,34,25,38,1],[25,39,25,43,1],[26,34,26,38,1],[26,39,26,43,1],[31,34,31,38,0],[31,39,31,43,1],[32,34,32,38,0],[32,39,32,43,1],[37,34,37,38,1],[37,39,37,43,1],[38,42,38,46,1],[38,47,38,51,1],[39,45,39,49,1],[39,50,39,54,1],[40,46,40,50,1],[40,51,40,55,1],[41,42,41,46,1],[41,47,41,51,1]]);
+    </script>
+  </body>
+</html>
