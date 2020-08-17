@@ -1,6 +1,6 @@
 ![.NET Core](https://github.com/umutonat/SmartContractDescriptorsGenerator/workflows/.NET%20Core/badge.svg)
 
-[Unit Test Coverage](http://umutonat.github.io/SmartContractDescriptorsGenerator/Coverage.html)
+[Unit Test Coverage](http://umutonat.github.io/SmartContractDescriptorsGenerator/coverage.html)
 
 # Smart Contract Descriptors Generator
 ### Publishing API for VSCode Extension
